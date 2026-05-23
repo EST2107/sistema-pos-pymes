@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>POS Inventario - Login</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+
+</head>
+
+<body>
+
+<div class="login-container">
+
+    <!-- PANEL IZQUIERDO -->
+    <section class="brand-panel">
+
+        <div class="logo-box">
+            🛒
+        </div>
+
+        <h1>
+            POS
+            <span>INVENTARIO</span>
+        </h1>
+
+        <h2>
+            Sistema de ventas e inventario
+        </h2>
+
+        <p>
+            Administra tus ventas, productos e inventario
+            de forma fácil y eficiente.
+        </p>
+
+        <div class="pos-illustration">
+            🖥️ 🧾 📦
+        </div>
+
+        <small>
+            © 2026 POS Inventario. Todos los derechos reservados. EST21
+        </small>
+
+    </section>
+
+    <!-- PANEL DERECHO -->
+    <section class="form-panel">
+
+        <div class="login-card">
+
+            <div class="lock-icon">
+                🔒
+            </div>
+
+            <h2>
+                Iniciar Sesión
+            </h2>
+
+            <p>
+                Ingresa tus credenciales para continuar
+            </p>
+
+            <!-- ALERTAS -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+
+                        <div style="
+                            background: #ffe5e5;
+                            color: #b30000;
+                            padding: 14px;
+                            border-radius: 8px;
+                            margin-bottom: 20px;
+                            font-size: 14px;
+                            text-align: center;
+                            border: 1px solid #ffb8b8;
+                        ">
+                            {{ message }}
+                        </div>
+
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- FORM LOGIN -->
+            <form method="POST" action="{{ url_for('auth.login') }}">
+
+                <!-- USUARIO -->
+                <label>
+                    Usuario
+                </label>
+
+                <input
+                    type="text"
+                    name="usuario"
+                    placeholder="Ingresa tu usuario"
+                    required
+                >
+
+                <!-- PASSWORD -->
+                <label>
+                    Contraseña
+                </label>
+
+                <input
+                    type="password"
+                    name="password"
+                    placeholder="Ingresa tu contraseña"
+                    required
+                >
+
+                <!-- OPCIONES -->
+                <div class="options">
+
+                    <span>
+                        ☑ Recordarme
+                    </span>
+
+                    <a href="#">
+                        ¿Olvidaste tu contraseña?
+                    </a>
+
+                </div>
+
+                <!-- BOTÓN LOGIN -->
+                <button type="submit">
+
+                    ↪ Iniciar Sesión
+
+                </button>
+
+                <!-- DIVIDER -->
+                <div class="divider">
+
+                    o continúa con
+
+                </div>
+
+                <!-- BOTÓN DEMO -->
+                <button
+                    type="button"
+                    class="demo-btn"
+                >
+
+                    👤 Usuario Demo
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </section>
+
+</div>
+
+</body>
+</html>

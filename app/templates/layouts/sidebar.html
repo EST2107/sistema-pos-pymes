@@ -1,0 +1,33 @@
+<aside class="sidebar">
+
+    <div class="brand">
+        <div class="brand-icon">🛒</div>
+        <div>
+            <h2>POS</h2>
+            <span>INVENTARIO</span>
+        </div>
+    </div>
+
+    <div class="user-box">
+        <div class="avatar">👤</div>
+        <div>
+            <strong>{{ current_user.nombre_completo }}</strong>
+            <span>{{ current_user.rol.nombre }}</span>
+        </div>
+    </div>
+
+    <nav class="menu">
+        <a href="{{ url_for('dashboard.dashboard') }}" class="active">🏠 Dashboard</a>
+        <a href="#">🛒 Ventas</a>
+        <a href="#">📦 Productos</a>
+        <a href="#">🧾 Compras</a>
+        <a href="#">📊 Inventario</a>
+        <a href="#">🚚 Proveedores</a>
+        <a href="#">📈 Reportes</a>
+        <a href="#">👥 Usuarios</a>
+        <a href="#">⚙ Configuración</a>
+    </nav>
+
+    <a class="logout" href="{{ url_for('auth.logout') }}">🚪 Cerrar Sesión</a>
+
+</aside>

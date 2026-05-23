@@ -1,0 +1,13 @@
+<header class="topbar">
+
+    <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+
+    <div class="topbar-actions">
+        <span>🔔</span>
+        <span>⚙</span>
+        <div class="profile">
+            👤 {{ current_user.usuario }}
+        </div>
+    </div>
+
+</header>

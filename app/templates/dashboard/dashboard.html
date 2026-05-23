@@ -1,0 +1,126 @@
+{% extends 'layouts/base.html' %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="cards-grid">
+
+    <div class="kpi-card">
+        <p>Ventas del día</p>
+        <h2>C$ 12,450.00</h2>
+        <span class="positive">+18.5% vs ayer</span>
+    </div>
+
+    <div class="kpi-card">
+        <p>Ventas del mes</p>
+        <h2>C$ 245,650.00</h2>
+        <span class="positive">+22.1% vs mes pasado</span>
+    </div>
+
+    <div class="kpi-card">
+        <p>Ganancia del mes</p>
+        <h2>C$ 98,750.00</h2>
+        <span class="positive">+15.2% vs mes pasado</span>
+    </div>
+
+    <div class="kpi-card">
+        <p>Productos</p>
+        <h2>156</h2>
+        <span>Total registrados</span>
+    </div>
+
+</div>
+
+<div class="dashboard-grid">
+
+    <div class="panel large-panel">
+        <h3>Ventas últimos 7 días</h3>
+
+        <div class="fake-chart">
+            <div style="height:45%"></div>
+            <div style="height:70%"></div>
+            <div style="height:35%"></div>
+            <div style="height:55%"></div>
+            <div style="height:85%"></div>
+            <div style="height:62%"></div>
+            <div style="height:68%"></div>
+        </div>
+
+        <div class="chart-labels">
+            <span>Lun</span>
+            <span>Mar</span>
+            <span>Mié</span>
+            <span>Jue</span>
+            <span>Vie</span>
+            <span>Sáb</span>
+            <span>Dom</span>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h3>Productos más vendidos</h3>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Vendidos</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1. Coca Cola 1.5L</td>
+                    <td>245</td>
+                </tr>
+                <tr>
+                    <td>2. Arroz Progreso 1kg</td>
+                    <td>180</td>
+                </tr>
+                <tr>
+                    <td>3. Aceite Gourmet 900ml</td>
+                    <td>165</td>
+                </tr>
+                <tr>
+                    <td>4. Azúcar Morena 1kg</td>
+                    <td>150</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="panel">
+        <h3>Stock bajo</h3>
+
+        <div class="stock-item">
+            <span>🧴 Detergente Surf 500g</span>
+            <strong class="danger">Stock: 2</strong>
+        </div>
+
+        <div class="stock-item">
+            <span>🧻 Papel Higiénico Familiar</span>
+            <strong class="danger">Stock: 3</strong>
+        </div>
+
+        <div class="stock-item">
+            <span>🥛 Leche Gloria 1L</span>
+            <strong class="danger">Stock: 4</strong>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h3>Ventas por categoría</h3>
+
+        <div class="donut"></div>
+
+        <div class="legend">
+            <span>🔵 Bebidas</span>
+            <span>🟢 Alimentos</span>
+            <span>🟡 Limpieza</span>
+            <span>🔴 Otros</span>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
