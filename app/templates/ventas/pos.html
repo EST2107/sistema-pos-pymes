@@ -8,51 +8,19 @@
     <div class="pos-products">
         <div class="page-header" style="margin-bottom: 0;">
             <div class="search-bar" style="width: 100%;">
-                <input type="text" class="form-control" placeholder="Buscar producto (código o nombre)...">
+                <input type="text" id="searchInput" class="form-control" placeholder="Buscar producto (código o nombre)...">
+            </div>
+            <div style="margin-top: 10px; width: 100%;">
+                <label for="clientSelect" style="font-size: 13px; color: #6a768d; display:block; margin-bottom:6px;">Cliente:</label>
+                <select id="clientSelect" class="form-control">
+                    <option value="">Público General</option>
+                    <!-- Opciones de clientes dinámicas -->
+                </select>
             </div>
         </div>
 
-        <div class="pos-products-grid">
-            <div class="product-card">
-                <span class="product-img">🥤</span>
-                <div class="product-title">Coca Cola 1.5L</div>
-                <div class="product-price">C$ 35.00</div>
-            </div>
-            <div class="product-card">
-                <span class="product-img">🍚</span>
-                <div class="product-title">Arroz Progreso 1kg</div>
-                <div class="product-price">C$ 28.00</div>
-            </div>
-            <div class="product-card">
-                <span class="product-img">🛢️</span>
-                <div class="product-title">Aceite Gourmet 900ml</div>
-                <div class="product-price">C$ 62.00</div>
-            </div>
-            <div class="product-card">
-                <span class="product-img">🧂</span>
-                <div class="product-title">Azúcar Morena 1kg</div>
-                <div class="product-price">C$ 20.00</div>
-            </div>
-            <div class="product-card">
-                <span class="product-img">🥛</span>
-                <div class="product-title">Leche Gloria 1L</div>
-                <div class="product-price">C$ 25.00</div>
-            </div>
-            <div class="product-card">
-                <span class="product-img">🥚</span>
-                <div class="product-title">Huevos 30und</div>
-                <div class="product-price">C$ 85.00</div>
-            </div>
-            <div class="product-card">
-                <span class="product-img">🧻</span>
-                <div class="product-title">Papel Higiénico Familiar</div>
-                <div class="product-price">C$ 15.00</div>
-            </div>
-            <div class="product-card">
-                <span class="product-img">🧴</span>
-                <div class="product-title">Detergente Surf 500g</div>
-                <div class="product-price">C$ 40.00</div>
-            </div>
+        <div class="pos-products-grid" id="productsGrid">
+            <!-- Productos cargados dinámicamente vía JS -->
         </div>
     </div>
 
@@ -60,85 +28,120 @@
     <div class="pos-cart">
         <div class="cart-header">
             <h3>Carrito de compra</h3>
-            <button class="btn btn-danger" style="padding: 6px 10px; font-size: 12px;">Cancelar Venta</button>
+            <button id="cancelSaleBtn" class="btn btn-danger" style="padding: 6px 10px; font-size: 12px;">Cancelar Venta</button>
         </div>
         
-        <div class="cart-items">
-            <div class="cart-item">
-                <div>
-                    <strong>Coca Cola 1.5L</strong><br>
-                    <span style="color:#6a768d;">C$ 35.00</span>
-                </div>
-                <div class="qty-control">
-                    <button class="qty-btn">-</button>
-                    <span>1</span>
-                    <button class="qty-btn">+</button>
-                </div>
-                <div style="text-align: right; font-weight: bold;">C$ 35.00</div>
-                <div style="text-align: right;">
-                    <button class="btn-icon delete">🗑️</button>
-                </div>
-            </div>
-
-            <div class="cart-item">
-                <div>
-                    <strong>Arroz Progreso 1kg</strong><br>
-                    <span style="color:#6a768d;">C$ 28.00</span>
-                </div>
-                <div class="qty-control">
-                    <button class="qty-btn">-</button>
-                    <span>1</span>
-                    <button class="qty-btn">+</button>
-                </div>
-                <div style="text-align: right; font-weight: bold;">C$ 28.00</div>
-                <div style="text-align: right;">
-                    <button class="btn-icon delete">🗑️</button>
-                </div>
-            </div>
-
-            <div class="cart-item">
-                <div>
-                    <strong>Aceite Gourmet 900ml</strong><br>
-                    <span style="color:#6a768d;">C$ 62.00</span>
-                </div>
-                <div class="qty-control">
-                    <button class="qty-btn">-</button>
-                    <span>1</span>
-                    <button class="qty-btn">+</button>
-                </div>
-                <div style="text-align: right; font-weight: bold;">C$ 62.00</div>
-                <div style="text-align: right;">
-                    <button class="btn-icon delete">🗑️</button>
-                </div>
-            </div>
+        <div class="cart-items" id="cartItems">
+            <!-- Elementos del carrito cargados dinámicamente -->
         </div>
 
         <div class="cart-summary">
             <div class="summary-row">
                 <span>Subtotal</span>
-                <span>C$ 125.00</span>
+                <span id="subtotalDisplay">C$ 0.00</span>
             </div>
             <div class="summary-row">
                 <span>Descuento</span>
-                <input type="text" class="form-control" style="width: 80px; padding: 4px 8px; text-align: right;" value="0.00">
+                <input type="number" id="discountInput" class="form-control" style="width: 80px; padding: 4px 8px; text-align: right;" value="0.00" min="0" step="0.01">
             </div>
             <div class="summary-row total">
                 <span>Total:</span>
-                <span>C$ 125.00</span>
+                <span id="totalDisplay">C$ 0.00</span>
             </div>
             
             <div style="margin-top: 16px;">
                 <label style="font-size: 13px; color: #6a768d; display:block; margin-bottom:6px;">Método de pago</label>
                 <div style="display: flex; gap: 12px;">
-                    <select class="form-control" style="flex:1;">
-                        <option>Efectivo</option>
-                        <option>Tarjeta</option>
-                        <option>Transferencia</option>
+                    <select id="paymentMethod" class="form-control" style="flex:1;">
+                        <option value="Efectivo">Efectivo</option>
+                        <option value="Tarjeta">Tarjeta</option>
+                        <option value="Transferencia">Transferencia</option>
                     </select>
-                    <button class="btn btn-success" style="flex:1; justify-content:center;">Cobrar C$ 125.00</button>
+                    <button id="chargeBtn" class="btn btn-success" style="flex:1; justify-content:center;">Cobrar C$ 0.00</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modal Checkout -->
+<div id="checkoutModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="modal-content" style="background: white; padding: 25px; border-radius: 8px; width: 400px; max-width: 90%;">
+        <h3 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Confirmar Cobro</h3>
+        
+        <div style="margin-bottom: 15px; font-size: 13px; color: #6a768d;">
+            <p style="margin: 5px 0;">Fecha: <span id="modalDate"></span></p>
+        </div>
+        
+        <div id="modalItems" style="max-height: 150px; overflow-y: auto; margin-bottom: 15px; font-size: 13px;">
+            <!-- Items del modal -->
+        </div>
+        
+        <div style="border-top: 1px solid #eee; padding-top: 10px; font-size: 14px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>Subtotal:</span>
+                <span id="modalSubtotal">C$ 0.00</span>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <span>
+                    Descuento: 
+                    <button id="openDiscountModalBtn" style="background: none; border: 1px solid #ccc; border-radius: 4px; font-size: 10px; cursor: pointer;">✏️ Editar</button>
+                </span>
+                <span id="modalDiscount">- C$ 0.00</span>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; background: #f8f9fa; padding: 8px; border-radius: 6px;">
+                <label style="display: flex; align-items: center; cursor: pointer; margin: 0;">
+                    <input type="checkbox" id="propinaSwitch" checked style="margin-right: 8px; transform: scale(1.2);">
+                    Propina <button id="openPropinaModalBtn" style="background: none; border: 1px solid #ccc; border-radius: 4px; font-size: 10px; cursor: pointer; margin-left: 5px;">✏️ Editar</button>
+                </label>
+                <span id="modalPropina">+ C$ 0.00</span>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; margin-top: 15px; font-weight: bold; font-size: 18px; color: #1abc9c;">
+                <span>Total a Pagar:</span>
+                <span id="modalTotal">C$ 0.00</span>
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 10px; margin-top: 25px;">
+            <button id="closeCheckoutModalBtn" class="btn" style="flex: 1; background: #e0e0e0; color: #333;">Cancelar</button>
+            <button id="confirmCheckoutBtn" class="btn btn-success" style="flex: 1;">Registrar Venta</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Descuento -->
+<div id="discountModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1010; align-items: center; justify-content: center;">
+    <div class="modal-content" style="background: white; padding: 20px; border-radius: 8px; width: 300px;">
+        <h4 style="margin-top: 0;">Aplicar Descuento</h4>
+        <label style="font-size: 13px; color: #6a768d;">Monto a descontar (C$):</label>
+        <input type="number" id="modalDiscountInput" class="form-control" style="width: 100%; margin-top: 5px; margin-bottom: 15px;" min="0" step="0.01" value="0.00">
+        
+        <div style="display: flex; gap: 10px;">
+            <button id="closeDiscountModalBtn" class="btn" style="flex: 1; background: #e0e0e0; color: #333;">Cancelar</button>
+            <button id="applyDiscountBtn" class="btn btn-primary" style="flex: 1;">Aplicar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Propina -->
+<div id="propinaModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1010; align-items: center; justify-content: center;">
+    <div class="modal-content" style="background: white; padding: 20px; border-radius: 8px; width: 300px;">
+        <h4 style="margin-top: 0;">Editar Propina</h4>
+        <label style="font-size: 13px; color: #6a768d;">Monto de propina (C$):</label>
+        <input type="number" id="modalPropinaInput" class="form-control" style="width: 100%; margin-top: 5px; margin-bottom: 15px;" min="0" step="0.01" value="0.00">
+        
+        <div style="display: flex; gap: 10px;">
+            <button id="closePropinaModalBtn" class="btn" style="flex: 1; background: #e0e0e0; color: #333;">Cancelar</button>
+            <button id="applyPropinaBtn" class="btn btn-primary" style="flex: 1;">Aplicar</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/ventas.js') }}?v=2"></script>
 {% endblock %}

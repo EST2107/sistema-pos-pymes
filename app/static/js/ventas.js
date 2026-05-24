@@ -1,1 +1,344 @@
-# ventas.js
+// ventas.js
+let productos = [];
+let cart = [];
+let descuentoAplicado = 0.0;
+let propinaAplicada = 0.0;
+let propinaManual = null; // Si el usuario edita manualmente
+
+document.addEventListener('DOMContentLoaded', () => {
+    cargarProductos();
+    cargarClientes();
+
+    document.getElementById('searchInput').addEventListener('input', filtrarProductos);
+    
+    // Antiguo botón cobrar, ahora abre el modal
+    document.getElementById('chargeBtn').addEventListener('click', abrirModalCheckout);
+    document.getElementById('cancelSaleBtn').addEventListener('click', cancelarVenta);
+
+    // Eventos del Modal de Checkout
+    document.getElementById('closeCheckoutModalBtn').addEventListener('click', cerrarModalCheckout);
+    document.getElementById('propinaSwitch').addEventListener('change', recalcularTotalesModal);
+    document.getElementById('confirmCheckoutBtn').addEventListener('click', confirmarCobro);
+    
+    // Eventos del Modal de Descuento
+    document.getElementById('openDiscountModalBtn').addEventListener('click', abrirModalDescuento);
+    document.getElementById('closeDiscountModalBtn').addEventListener('click', cerrarModalDescuento);
+    document.getElementById('applyDiscountBtn').addEventListener('click', aplicarDescuento);
+
+    // Eventos del Modal de Propina
+    document.getElementById('openPropinaModalBtn').addEventListener('click', abrirModalPropina);
+    document.getElementById('closePropinaModalBtn').addEventListener('click', cerrarModalPropina);
+    document.getElementById('applyPropinaBtn').addEventListener('click', aplicarPropina);
+});
+
+async function cargarProductos() {
+    try {
+        const response = await fetch('/ventas/api/productos');
+        productos = await response.json();
+        renderizarProductos(productos);
+    } catch (error) {
+        console.error('Error cargando productos:', error);
+    }
+}
+
+async function cargarClientes() {
+    try {
+        const response = await fetch('/ventas/api/clientes');
+        const clientes = await response.json();
+        const select = document.getElementById('clientSelect');
+        clientes.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.id_cliente;
+            opt.textContent = `${c.nombre} - ${c.cedula || ''}`;
+            select.appendChild(opt);
+        });
+    } catch (error) {
+        console.error('Error cargando clientes:', error);
+    }
+}
+
+function renderizarProductos(lista) {
+    const grid = document.getElementById('productsGrid');
+    grid.innerHTML = '';
+    
+    lista.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        if (p.stock <= 0) {
+            card.style.opacity = '0.5';
+            card.style.pointerEvents = 'none';
+        }
+
+        const imgDisplay = p.imagen_url ? `<img src="${p.imagen_url}" alt="${p.nombre}" style="max-width: 40px; max-height: 40px; display: block; margin: 0 auto 10px auto;">` : `<span class="product-img">📦</span>`;
+
+        card.innerHTML = `
+            ${imgDisplay}
+            <div class="product-title">${p.nombre}</div>
+            <div class="product-price">C$ ${p.precio_venta.toFixed(2)}</div>
+            ${p.stock <= 0 ? '<div style="color:red; font-size: 10px; text-align:center; font-weight:bold;">Agotado</div>' : `<div style="font-size: 10px; color: #6a768d; text-align:center;">Stock: ${p.stock}</div>`}
+        `;
+        
+        if (p.stock > 0) {
+            card.addEventListener('click', () => agregarAlCarrito(p));
+        }
+        
+        grid.appendChild(card);
+    });
+}
+
+function filtrarProductos(e) {
+    const texto = e.target.value.toLowerCase();
+    const filtrados = productos.filter(p => 
+        p.nombre.toLowerCase().includes(texto) || 
+        (p.codigo && p.codigo.toLowerCase().includes(texto))
+    );
+    renderizarProductos(filtrados);
+}
+
+function agregarAlCarrito(producto) {
+    const existente = cart.find(item => item.id_producto === producto.id_producto);
+    if (existente) {
+        if (existente.cantidad < producto.stock) {
+            existente.cantidad += 1;
+        } else {
+            alert('Stock insuficiente');
+            return;
+        }
+    } else {
+        cart.push({
+            id_producto: producto.id_producto,
+            nombre: producto.nombre,
+            precio: producto.precio_venta,
+            cantidad: 1,
+            stock: producto.stock
+        });
+    }
+    renderizarCarrito();
+}
+
+function modificarCantidad(id_producto, delta) {
+    const item = cart.find(i => i.id_producto === id_producto);
+    if (item) {
+        item.cantidad += delta;
+        if (item.cantidad <= 0) {
+            cart = cart.filter(i => i.id_producto !== id_producto);
+        } else if (item.cantidad > item.stock) {
+            item.cantidad = item.stock;
+            alert('Stock insuficiente');
+        }
+        renderizarCarrito();
+    }
+}
+
+function eliminarDelCarrito(id_producto) {
+    cart = cart.filter(i => i.id_producto !== id_producto);
+    renderizarCarrito();
+}
+
+function getSubtotal() {
+    let subtotal = 0;
+    cart.forEach(item => subtotal += item.precio * item.cantidad);
+    return subtotal;
+}
+
+function renderizarCarrito() {
+    const cartItemsDiv = document.getElementById('cartItems');
+    cartItemsDiv.innerHTML = '';
+    
+    let subtotal = getSubtotal();
+
+    cart.forEach(item => {
+        const itemTotal = item.precio * item.cantidad;
+        const div = document.createElement('div');
+        div.className = 'cart-item';
+        div.innerHTML = `
+            <div>
+                <strong>${item.nombre}</strong><br>
+                <span style="color:#6a768d;">C$ ${item.precio.toFixed(2)}</span>
+            </div>
+            <div class="qty-control">
+                <button class="qty-btn" onclick="modificarCantidad(${item.id_producto}, -1)">-</button>
+                <span>${item.cantidad}</span>
+                <button class="qty-btn" onclick="modificarCantidad(${item.id_producto}, 1)">+</button>
+            </div>
+            <div style="text-align: right; font-weight: bold;">C$ ${itemTotal.toFixed(2)}</div>
+            <div style="text-align: right;">
+                <button class="btn-icon delete" onclick="eliminarDelCarrito(${item.id_producto})">🗑️</button>
+            </div>
+        `;
+        cartItemsDiv.appendChild(div);
+    });
+
+    document.getElementById('subtotalDisplay').textContent = `C$ ${subtotal.toFixed(2)}`;
+    
+    let total = subtotal - descuentoAplicado;
+    if (total < 0) total = 0;
+    document.getElementById('totalDisplay').textContent = `C$ ${total.toFixed(2)}`;
+    document.getElementById('chargeBtn').textContent = `Cobrar C$ ${total.toFixed(2)}`;
+}
+
+function cancelarVenta() {
+    if (cart.length === 0) return;
+    if (confirm('¿Está seguro de cancelar la venta?')) {
+        cart = [];
+        descuentoAplicado = 0;
+        propinaManual = null;
+        renderizarCarrito();
+    }
+}
+
+// ---- LOGICA DEL MODAL DE CHECKOUT ----
+
+function abrirModalCheckout() {
+    if (cart.length === 0) {
+        alert('El carrito está vacío');
+        return;
+    }
+    
+    // Fecha y Hora
+    const now = new Date();
+    document.getElementById('modalDate').textContent = now.toLocaleString();
+    
+    // Llenar Items
+    const modalItems = document.getElementById('modalItems');
+    modalItems.innerHTML = '';
+    cart.forEach(item => {
+        const div = document.createElement('div');
+        div.style.display = 'flex';
+        div.style.justifyContent = 'space-between';
+        div.style.marginBottom = '4px';
+        div.innerHTML = `<span>${item.cantidad}x ${item.nombre}</span> <span>C$ ${(item.precio * item.cantidad).toFixed(2)}</span>`;
+        modalItems.appendChild(div);
+    });
+    
+    // Reset Propina manual si el carrito cambió (opcional), aquí lo mantenemos
+    document.getElementById('propinaSwitch').checked = true; // Por defecto activo como pidió el usuario
+    
+    recalcularTotalesModal();
+    
+    document.getElementById('checkoutModal').style.display = 'flex';
+}
+
+function cerrarModalCheckout() {
+    document.getElementById('checkoutModal').style.display = 'none';
+}
+
+function recalcularTotalesModal() {
+    let subtotal = getSubtotal();
+    let baseTotal = subtotal - descuentoAplicado;
+    if (baseTotal < 0) baseTotal = 0;
+    
+    const applyPropina = document.getElementById('propinaSwitch').checked;
+    
+    if (applyPropina) {
+        if (propinaManual !== null) {
+            propinaAplicada = propinaManual;
+        } else {
+            propinaAplicada = baseTotal * 0.10; // 10% por defecto
+        }
+    } else {
+        propinaAplicada = 0.0;
+    }
+    
+    let finalTotal = baseTotal + propinaAplicada;
+    
+    document.getElementById('modalSubtotal').textContent = `C$ ${subtotal.toFixed(2)}`;
+    document.getElementById('modalDiscount').textContent = `- C$ ${descuentoAplicado.toFixed(2)}`;
+    document.getElementById('modalPropina').textContent = `+ C$ ${propinaAplicada.toFixed(2)}`;
+    document.getElementById('modalTotal').textContent = `C$ ${finalTotal.toFixed(2)}`;
+}
+
+// ---- LOGICA DEL MODAL DE DESCUENTO ----
+
+function abrirModalDescuento() {
+    document.getElementById('modalDiscountInput').value = descuentoAplicado.toFixed(2);
+    document.getElementById('discountModal').style.display = 'flex';
+}
+
+function cerrarModalDescuento() {
+    document.getElementById('discountModal').style.display = 'none';
+}
+
+function aplicarDescuento() {
+    let val = parseFloat(document.getElementById('modalDiscountInput').value);
+    if (isNaN(val) || val < 0) val = 0;
+    
+    let subtotal = getSubtotal();
+    if (val > subtotal) {
+        alert("El descuento no puede ser mayor al subtotal.");
+        val = subtotal;
+    }
+    
+    descuentoAplicado = val;
+    cerrarModalDescuento();
+    recalcularTotalesModal();
+    renderizarCarrito(); // Para actualizar la vista principal de atrás
+}
+
+// ---- LOGICA DEL MODAL DE PROPINA ----
+
+function abrirModalPropina() {
+    document.getElementById('modalPropinaInput').value = propinaAplicada.toFixed(2);
+    document.getElementById('propinaModal').style.display = 'flex';
+}
+
+function cerrarModalPropina() {
+    document.getElementById('propinaModal').style.display = 'none';
+}
+
+function aplicarPropina() {
+    let val = parseFloat(document.getElementById('modalPropinaInput').value);
+    if (isNaN(val) || val < 0) val = 0;
+    
+    propinaManual = val;
+    document.getElementById('propinaSwitch').checked = true; // Activar switch si editó la propina
+    cerrarModalPropina();
+    recalcularTotalesModal();
+}
+
+// ---- CONFIRMAR COBRO ----
+
+async function confirmarCobro() {
+    const payload = {
+        cart: cart,
+        descuento: descuentoAplicado,
+        propina: propinaAplicada,
+        metodo_pago: document.getElementById('paymentMethod').value,
+        id_cliente: document.getElementById('clientSelect').value || null
+    };
+
+    const btn = document.getElementById('confirmCheckoutBtn');
+    btn.disabled = true;
+    btn.textContent = 'Procesando...';
+
+    try {
+        const response = await fetch('/ventas/api/cobrar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('¡Venta registrada exitosamente!');
+            
+            // Limpiar todo
+            cerrarModalCheckout();
+            cart = [];
+            descuentoAplicado = 0;
+            propinaAplicada = 0;
+            propinaManual = null;
+            renderizarCarrito();
+            cargarProductos(); // Recargar productos para actualizar stock
+        } else {
+            alert('Error al cobrar: ' + result.message);
+        }
+    } catch (error) {
+        console.error('Error en cobro:', error);
+        alert('Ocurrió un error al procesar la venta');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Registrar Venta';
+    }
+}
