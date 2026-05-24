@@ -33,6 +33,15 @@ def create_app():
     def load_user(user_id):
         return Usuario.query.get(int(user_id))
 
+    @app.context_processor
+    def inject_empresa():
+        from flask_login import current_user
+        from app.models import Empresa
+        if current_user.is_authenticated and current_user.id_empresa:
+            empresa = Empresa.query.get(current_user.id_empresa)
+            return dict(empresa_actual=empresa)
+        return dict(empresa_actual=None)
+
     app.register_blueprint(auth_bp)
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(producto_bp)

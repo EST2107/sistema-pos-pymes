@@ -5,8 +5,12 @@
     <div class="topbar-actions">
         <span>🔔</span>
         <span>⚙</span>
-        <div class="profile">
-            👤 {{ current_user.usuario }}
+        <div class="profile" style="display: flex; align-items: center; gap: 10px;">
+            {% if empresa_actual %}
+            <span style="font-weight: bold; color: #1abc9c;">🏢 {{ empresa_actual.nombre }}</span>
+            <span style="color: #ccc;">|</span>
+            {% endif %}
+            <span>👤 {{ current_user.usuario }}</span>
         </div>
     </div>
 
