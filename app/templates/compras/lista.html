@@ -1,0 +1,112 @@
+{% extends 'layouts/base.html' %}
+
+{% block page_title %}Compras{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="filter-group">
+        <div class="search-bar">
+            <input type="text" class="form-control" placeholder="Buscar por fecha, proveedor o ID...">
+        </div>
+    </div>
+    
+    <button class="btn btn-primary">+ Nueva Compra</button>
+</div>
+
+<div class="panel">
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Proveedor</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>25/05/2024</td>
+                <td>Proveedor Central</td>
+                <td>C$ 5,650.00</td>
+                <td><span class="badge badge-active">Completada</span></td>
+                <td>
+                    <a href="{{ url_for('compra.detalle') }}" class="btn-icon">👁️</a>
+                </td>
+            </tr>
+            <tr>
+                <td>24/05/2024</td>
+                <td>Distribuidora El Sol</td>
+                <td>C$ 3,250.00</td>
+                <td><span class="badge badge-active">Completada</span></td>
+                <td>
+                    <a href="{{ url_for('compra.detalle') }}" class="btn-icon">👁️</a>
+                </td>
+            </tr>
+            <tr>
+                <td>23/05/2024</td>
+                <td>Alimentos S.A.</td>
+                <td>C$ 2,890.00</td>
+                <td><span class="badge badge-active">Completada</span></td>
+                <td>
+                    <a href="{{ url_for('compra.detalle') }}" class="btn-icon">👁️</a>
+                </td>
+            </tr>
+            <tr>
+                <td>22/05/2024</td>
+                <td>Proveedor Central</td>
+                <td>C$ 4,180.00</td>
+                <td><span class="badge badge-active">Completada</span></td>
+                <td>
+                    <a href="{{ url_for('compra.detalle') }}" class="btn-icon">👁️</a>
+                </td>
+            </tr>
+            <tr>
+                <td>21/05/2024</td>
+                <td>Distribuidora El Sol</td>
+                <td>C$ 3,700.00</td>
+                <td><span class="badge badge-active">Completada</span></td>
+                <td>
+                    <a href="{{ url_for('compra.detalle') }}" class="btn-icon">👁️</a>
+                </td>
+            </tr>
+            <tr>
+                <td>20/05/2024</td>
+                <td>Alimentos S.A.</td>
+                <td>C$ 2,350.00</td>
+                <td><span class="badge badge-active">Completada</span></td>
+                <td>
+                    <a href="{{ url_for('compra.detalle') }}" class="btn-icon">👁️</a>
+                </td>
+            </tr>
+            <tr>
+                <td>19/05/2024</td>
+                <td>Proveedor Central</td>
+                <td>C$ 6,150.00</td>
+                <td><span class="badge badge-active">Completada</span></td>
+                <td>
+                    <a href="{{ url_for('compra.detalle') }}" class="btn-icon">👁️</a>
+                </td>
+            </tr>
+            <tr>
+                <td>18/05/2024</td>
+                <td>Distribuidora El Sol</td>
+                <td>C$ 3,380.00</td>
+                <td><span class="badge badge-active">Completada</span></td>
+                <td>
+                    <a href="{{ url_for('compra.detalle') }}" class="btn-icon">👁️</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        <span>Mostrando 1 a 8 de 15 compras</span>
+        <div class="page-numbers">
+            <a href="#" class="page-btn active">1</a>
+            <a href="#" class="page-btn">2</a>
+            <a href="#" class="page-btn">›</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

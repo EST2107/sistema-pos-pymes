@@ -1,0 +1,95 @@
+{% extends 'layouts/base.html' %}
+
+{% block page_title %}Inventario{% endblock %}
+
+{% block content %}
+
+<div class="panel">
+    <div class="tabs">
+        <a href="#" class="tab-item">Movimientos</a>
+        <a href="#" class="tab-item active">Stock Actual</a>
+        <a href="#" class="tab-item">Ajustes</a>
+    </div>
+
+    <div class="page-header" style="margin-bottom: 16px;">
+        <div class="filter-group">
+            <div>
+                <label style="font-size: 12px; color: #6a768d; display: block; margin-bottom: 4px;">Categoría</label>
+                <select class="form-control" style="width: 150px;">
+                    <option>Todas</option>
+                    <option>Bebidas</option>
+                    <option>Alimentos</option>
+                    <option>Limpieza</option>
+                </select>
+            </div>
+            <div style="align-self: flex-end;">
+                <div class="search-bar">
+                    <input type="text" class="form-control" placeholder="Buscar producto...">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Stock Actual</th>
+                <th>Stock Mínimo</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Coca Cola 1.5L</td>
+                <td>50</td>
+                <td>10</td>
+                <td><span class="badge badge-active" style="background:#e6f6ed; color:#11a652;">Óptimo</span></td>
+            </tr>
+            <tr>
+                <td>Arroz Progreso 1kg</td>
+                <td>35</td>
+                <td>10</td>
+                <td><span class="badge badge-active" style="background:#e6f6ed; color:#11a652;">Óptimo</span></td>
+            </tr>
+            <tr>
+                <td>Aceite Gourmet 900ml</td>
+                <td>5</td>
+                <td>10</td>
+                <td><span class="badge badge-warning">Bajo</span></td>
+            </tr>
+            <tr>
+                <td>Azúcar Morena 1kg</td>
+                <td>40</td>
+                <td>15</td>
+                <td><span class="badge badge-active" style="background:#e6f6ed; color:#11a652;">Óptimo</span></td>
+            </tr>
+            <tr>
+                <td>Leche Gloria 1L</td>
+                <td>15</td>
+                <td>10</td>
+                <td><span class="badge badge-active" style="background:#e6f6ed; color:#11a652;">Óptimo</span></td>
+            </tr>
+            <tr>
+                <td>Huevos 30und</td>
+                <td>10</td>
+                <td>10</td>
+                <td><span class="badge badge-warning">Bajo</span></td>
+            </tr>
+            <tr>
+                <td>Papel Higiénico Familiar</td>
+                <td>3</td>
+                <td>10</td>
+                <td><span class="badge badge-inactive" style="background:#ffe5e5; color:#e63946;">Crítico</span></td>
+            </tr>
+            <tr>
+                <td>Detergente Surf 500g</td>
+                <td>2</td>
+                <td>10</td>
+                <td><span class="badge badge-inactive" style="background:#ffe5e5; color:#e63946;">Crítico</span></td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
+{% endblock %}

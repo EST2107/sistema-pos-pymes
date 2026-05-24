@@ -1,0 +1,159 @@
+{% extends 'layouts/base.html' %}
+
+{% block page_title %}Productos{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="filter-group">
+        <div class="search-bar">
+            <input type="text" class="form-control" placeholder="Buscar producto...">
+        </div>
+        <select class="form-control" style="width: 150px;">
+            <option>Categoría: Todas</option>
+            <option>Bebidas</option>
+            <option>Alimentos</option>
+            <option>Limpieza</option>
+        </select>
+        <select class="form-control" style="width: 150px;">
+            <option>Estado: Todos</option>
+            <option>Activos</option>
+            <option>Inactivos</option>
+        </select>
+    </div>
+    
+    <button class="btn btn-primary">+ Nuevo Producto</button>
+</div>
+
+<div class="panel">
+    <table>
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Producto</th>
+                <th>Categoría</th>
+                <th>Precio Compra</th>
+                <th>Precio Venta</th>
+                <th>Stock</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>P001</td>
+                <td>Coca Cola 1.5L</td>
+                <td>Bebidas</td>
+                <td>C$ 25.00</td>
+                <td>C$ 35.00</td>
+                <td>50</td>
+                <td><span class="badge badge-active">Activo</span></td>
+                <td>
+                    <button class="btn-icon">✏️</button>
+                    <button class="btn-icon delete">🗑️</button>
+                </td>
+            </tr>
+            <tr>
+                <td>P002</td>
+                <td>Arroz Progreso 1kg</td>
+                <td>Alimentos</td>
+                <td>C$ 18.00</td>
+                <td>C$ 28.00</td>
+                <td>35</td>
+                <td><span class="badge badge-active">Activo</span></td>
+                <td>
+                    <button class="btn-icon">✏️</button>
+                    <button class="btn-icon delete">🗑️</button>
+                </td>
+            </tr>
+            <tr>
+                <td>P003</td>
+                <td>Aceite Gourmet 900ml</td>
+                <td>Alimentos</td>
+                <td>C$ 45.00</td>
+                <td>C$ 62.00</td>
+                <td>20</td>
+                <td><span class="badge badge-active">Activo</span></td>
+                <td>
+                    <button class="btn-icon">✏️</button>
+                    <button class="btn-icon delete">🗑️</button>
+                </td>
+            </tr>
+            <tr>
+                <td>P004</td>
+                <td>Azúcar Morena 1kg</td>
+                <td>Alimentos</td>
+                <td>C$ 15.00</td>
+                <td>C$ 20.00</td>
+                <td>40</td>
+                <td><span class="badge badge-active">Activo</span></td>
+                <td>
+                    <button class="btn-icon">✏️</button>
+                    <button class="btn-icon delete">🗑️</button>
+                </td>
+            </tr>
+            <tr>
+                <td>P005</td>
+                <td>Leche Gloria 1L</td>
+                <td>Lácteos</td>
+                <td>C$ 20.00</td>
+                <td>C$ 25.00</td>
+                <td>15</td>
+                <td><span class="badge badge-active">Activo</span></td>
+                <td>
+                    <button class="btn-icon">✏️</button>
+                    <button class="btn-icon delete">🗑️</button>
+                </td>
+            </tr>
+            <tr>
+                <td>P006</td>
+                <td>Huevos 30und</td>
+                <td>Alimentos</td>
+                <td>C$ 70.00</td>
+                <td>C$ 85.00</td>
+                <td>10</td>
+                <td><span class="badge badge-active">Activo</span></td>
+                <td>
+                    <button class="btn-icon">✏️</button>
+                    <button class="btn-icon delete">🗑️</button>
+                </td>
+            </tr>
+            <tr>
+                <td>P007</td>
+                <td>Papel Higiénico Familiar</td>
+                <td>Limpieza</td>
+                <td>C$ 12.00</td>
+                <td>C$ 15.00</td>
+                <td>25</td>
+                <td><span class="badge badge-active">Activo</span></td>
+                <td>
+                    <button class="btn-icon">✏️</button>
+                    <button class="btn-icon delete">🗑️</button>
+                </td>
+            </tr>
+            <tr>
+                <td>P008</td>
+                <td>Detergente Surf 500g</td>
+                <td>Limpieza</td>
+                <td>C$ 30.00</td>
+                <td>C$ 40.00</td>
+                <td>26</td>
+                <td><span class="badge badge-active">Activo</span></td>
+                <td>
+                    <button class="btn-icon">✏️</button>
+                    <button class="btn-icon delete">🗑️</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        <span>Mostrando 1 a 8 de 156 productos</span>
+        <div class="page-numbers">
+            <a href="#" class="page-btn active">1</a>
+            <a href="#" class="page-btn">2</a>
+            <a href="#" class="page-btn">3</a>
+            <a href="#" class="page-btn">›</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

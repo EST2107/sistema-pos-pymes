@@ -1,0 +1,144 @@
+{% extends 'layouts/base.html' %}
+
+{% block page_title %}Nueva Venta{% endblock %}
+
+{% block content %}
+<div class="pos-layout">
+    <!-- Panel Izquierdo: Productos -->
+    <div class="pos-products">
+        <div class="page-header" style="margin-bottom: 0;">
+            <div class="search-bar" style="width: 100%;">
+                <input type="text" class="form-control" placeholder="Buscar producto (código o nombre)...">
+            </div>
+        </div>
+
+        <div class="pos-products-grid">
+            <div class="product-card">
+                <span class="product-img">🥤</span>
+                <div class="product-title">Coca Cola 1.5L</div>
+                <div class="product-price">C$ 35.00</div>
+            </div>
+            <div class="product-card">
+                <span class="product-img">🍚</span>
+                <div class="product-title">Arroz Progreso 1kg</div>
+                <div class="product-price">C$ 28.00</div>
+            </div>
+            <div class="product-card">
+                <span class="product-img">🛢️</span>
+                <div class="product-title">Aceite Gourmet 900ml</div>
+                <div class="product-price">C$ 62.00</div>
+            </div>
+            <div class="product-card">
+                <span class="product-img">🧂</span>
+                <div class="product-title">Azúcar Morena 1kg</div>
+                <div class="product-price">C$ 20.00</div>
+            </div>
+            <div class="product-card">
+                <span class="product-img">🥛</span>
+                <div class="product-title">Leche Gloria 1L</div>
+                <div class="product-price">C$ 25.00</div>
+            </div>
+            <div class="product-card">
+                <span class="product-img">🥚</span>
+                <div class="product-title">Huevos 30und</div>
+                <div class="product-price">C$ 85.00</div>
+            </div>
+            <div class="product-card">
+                <span class="product-img">🧻</span>
+                <div class="product-title">Papel Higiénico Familiar</div>
+                <div class="product-price">C$ 15.00</div>
+            </div>
+            <div class="product-card">
+                <span class="product-img">🧴</span>
+                <div class="product-title">Detergente Surf 500g</div>
+                <div class="product-price">C$ 40.00</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel Derecho: Carrito -->
+    <div class="pos-cart">
+        <div class="cart-header">
+            <h3>Carrito de compra</h3>
+            <button class="btn btn-danger" style="padding: 6px 10px; font-size: 12px;">Cancelar Venta</button>
+        </div>
+        
+        <div class="cart-items">
+            <div class="cart-item">
+                <div>
+                    <strong>Coca Cola 1.5L</strong><br>
+                    <span style="color:#6a768d;">C$ 35.00</span>
+                </div>
+                <div class="qty-control">
+                    <button class="qty-btn">-</button>
+                    <span>1</span>
+                    <button class="qty-btn">+</button>
+                </div>
+                <div style="text-align: right; font-weight: bold;">C$ 35.00</div>
+                <div style="text-align: right;">
+                    <button class="btn-icon delete">🗑️</button>
+                </div>
+            </div>
+
+            <div class="cart-item">
+                <div>
+                    <strong>Arroz Progreso 1kg</strong><br>
+                    <span style="color:#6a768d;">C$ 28.00</span>
+                </div>
+                <div class="qty-control">
+                    <button class="qty-btn">-</button>
+                    <span>1</span>
+                    <button class="qty-btn">+</button>
+                </div>
+                <div style="text-align: right; font-weight: bold;">C$ 28.00</div>
+                <div style="text-align: right;">
+                    <button class="btn-icon delete">🗑️</button>
+                </div>
+            </div>
+
+            <div class="cart-item">
+                <div>
+                    <strong>Aceite Gourmet 900ml</strong><br>
+                    <span style="color:#6a768d;">C$ 62.00</span>
+                </div>
+                <div class="qty-control">
+                    <button class="qty-btn">-</button>
+                    <span>1</span>
+                    <button class="qty-btn">+</button>
+                </div>
+                <div style="text-align: right; font-weight: bold;">C$ 62.00</div>
+                <div style="text-align: right;">
+                    <button class="btn-icon delete">🗑️</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="cart-summary">
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span>C$ 125.00</span>
+            </div>
+            <div class="summary-row">
+                <span>Descuento</span>
+                <input type="text" class="form-control" style="width: 80px; padding: 4px 8px; text-align: right;" value="0.00">
+            </div>
+            <div class="summary-row total">
+                <span>Total:</span>
+                <span>C$ 125.00</span>
+            </div>
+            
+            <div style="margin-top: 16px;">
+                <label style="font-size: 13px; color: #6a768d; display:block; margin-bottom:6px;">Método de pago</label>
+                <div style="display: flex; gap: 12px;">
+                    <select class="form-control" style="flex:1;">
+                        <option>Efectivo</option>
+                        <option>Tarjeta</option>
+                        <option>Transferencia</option>
+                    </select>
+                    <button class="btn btn-success" style="flex:1; justify-content:center;">Cobrar C$ 125.00</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

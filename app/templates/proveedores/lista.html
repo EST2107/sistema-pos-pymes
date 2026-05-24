@@ -1,0 +1,88 @@
+{% extends 'layouts/base.html' %}
+
+{% block page_title %}Proveedores{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="filter-group">
+        <div class="search-bar">
+            <input type="text" class="form-control" placeholder="Buscar proveedor...">
+        </div>
+    </div>
+    
+    <button class="btn btn-primary">+ Nuevo Proveedor</button>
+</div>
+
+<div class="panel">
+    <table>
+        <thead>
+            <tr>
+                <th>Proveedor</th>
+                <th>Teléfono</th>
+                <th>Dirección</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Proveedor Central</td>
+                <td>8888-1111</td>
+                <td>Managua, Nicaragua</td>
+                <td><span class="badge badge-active">Activo</span></td>
+                <td>
+                    <button class="btn-icon">✏️</button>
+                    <button class="btn-icon delete">🗑️</button>
+                </td>
+            </tr>
+            <tr>
+                <td>Distribuidora El Sol</td>
+                <td>8888-2222</td>
+                <td>León, Nicaragua</td>
+                <td><span class="badge badge-active">Activo</span></td>
+                <td>
+                    <button class="btn-icon">✏️</button>
+                    <button class="btn-icon delete">🗑️</button>
+                </td>
+            </tr>
+            <tr>
+                <td>Alimentos S.A.</td>
+                <td>8888-3333</td>
+                <td>Estelí, Nicaragua</td>
+                <td><span class="badge badge-active">Activo</span></td>
+                <td>
+                    <button class="btn-icon">✏️</button>
+                    <button class="btn-icon delete">🗑️</button>
+                </td>
+            </tr>
+            <tr>
+                <td>Super Mayorista</td>
+                <td>8888-4444</td>
+                <td>Managua, Nicaragua</td>
+                <td><span class="badge badge-active">Activo</span></td>
+                <td>
+                    <button class="btn-icon">✏️</button>
+                    <button class="btn-icon delete">🗑️</button>
+                </td>
+            </tr>
+            <tr>
+                <td>Distribuidora Norte</td>
+                <td>8888-5555</td>
+                <td>Matagalpa, Nicaragua</td>
+                <td><span class="badge badge-inactive">Inactivo</span></td>
+                <td>
+                    <button class="btn-icon">✏️</button>
+                    <button class="btn-icon delete">🗑️</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        <span>Mostrando 1 a 5 de 5 proveedores</span>
+        <div class="page-numbers">
+            <a href="#" class="page-btn active">1</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
