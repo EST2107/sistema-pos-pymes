@@ -1,0 +1,82 @@
+{% extends 'layouts/base.html' %}
+
+{% block page_title %}Historial de Ventas{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="filter-group">
+        <div class="search-bar">
+            <input type="text" id="searchInput" class="form-control" placeholder="Buscar por cliente o factura...">
+        </div>
+    </div>
+    <a href="{{ url_for('venta.pos') }}" class="btn btn-primary">Ir al Punto de Venta</a>
+</div>
+
+<div class="panel">
+    <table id="tablaVentas">
+        <thead>
+            <tr>
+                <th>No. Factura</th>
+                <th>Fecha</th>
+                <th>Cliente</th>
+                <th>Subtotal</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Llenado por JS -->
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let ventasList = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        cargarVentas();
+        document.getElementById('searchInput').addEventListener('input', renderizarTabla);
+    });
+
+    async function cargarVentas() {
+        try {
+            const res = await fetch('/ventas/api/historial');
+            ventasList = await res.json();
+            renderizarTabla();
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    function renderizarTabla() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        const tbody = document.querySelector('#tablaVentas tbody');
+        tbody.innerHTML = '';
+
+        const filtrados = ventasList.filter(v => 
+            v.numero_venta.toLowerCase().includes(query) ||
+            v.cliente.toLowerCase().includes(query)
+        );
+
+        filtrados.forEach(v => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${v.numero_venta}</strong></td>
+                <td>${v.fecha_venta}</td>
+                <td>${v.cliente}</td>
+                <td>C$ ${parseFloat(v.subtotal).toFixed(2)}</td>
+                <td><strong>C$ ${parseFloat(v.total).toFixed(2)}</strong></td>
+                <td><span class="badge badge-active">${v.estado}</span></td>
+                <td>
+                    <button class="btn-icon" title="Ver Factura" onclick="window.open('/ventas/factura/${v.id_venta}', '_blank')">🧾</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+</script>
+{% endblock %}

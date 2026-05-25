@@ -69,7 +69,9 @@ function renderizarProductos(lista) {
             card.style.pointerEvents = 'none';
         }
 
-        const imgDisplay = p.imagen_url ? `<img src="${p.imagen_url}" alt="${p.nombre}" style="max-width: 40px; max-height: 40px; display: block; margin: 0 auto 10px auto;">` : `<span class="product-img">📦</span>`;
+        const emojis = ['🍎','🥩','🥤','🥦','🍞','🧀','🍺','🍫','🥫','🧼','🥛','🥕'];
+        const emoji = emojis[p.id_producto % emojis.length];
+        const imgDisplay = p.imagen_url ? `<img src="${p.imagen_url}" alt="${p.nombre}" style="max-width: 40px; max-height: 40px; display: block; margin: 0 auto 10px auto;">` : `<span class="product-img">${emoji}</span>`;
 
         card.innerHTML = `
             ${imgDisplay}

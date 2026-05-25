@@ -603,3 +603,77 @@ th {
         padding: 16px;
     }
 }
+
+/* --- Dark Theme Overrides --- */
+body.dark-theme {
+    background: #0b1120;
+    color: #e2e8f0;
+}
+body.dark-theme .app-layout {
+    background: #0b1120;
+}
+body.dark-theme .sidebar {
+    background: linear-gradient(180deg, #0f172a, #020617);
+}
+body.dark-theme .panel,
+body.dark-theme .kpi-card,
+body.dark-theme .profile,
+body.dark-theme .pos-cart,
+body.dark-theme .product-card,
+body.dark-theme .modal-content {
+    background: #1e293b;
+    border-color: #334155;
+    color: #f8fafc;
+}
+body.dark-theme .cart-header,
+body.dark-theme .cart-item,
+body.dark-theme .cart-summary,
+body.dark-theme th,
+body.dark-theme td,
+body.dark-theme .tabs {
+    border-color: #334155;
+}
+body.dark-theme th {
+    color: #94a3b8;
+}
+body.dark-theme .form-control {
+    background: #0f172a;
+    border-color: #334155;
+    color: #f8fafc;
+}
+body.dark-theme .form-control:focus {
+    border-color: #3b82f6;
+}
+body.dark-theme .cart-summary {
+    background: #0f172a;
+}
+body.dark-theme .product-title {
+    color: #f8fafc;
+}
+body.dark-theme h1, body.dark-theme h2, body.dark-theme h3 {
+    color: #ffffff;
+}
+body.dark-theme .btn-secondary {
+    background: #1e293b;
+    color: #cbd5e1;
+    border-color: #334155;
+}
+body.dark-theme .btn-secondary:hover {
+    background: #334155;
+}
+body.dark-theme .modal-content h3, 
+body.dark-theme .modal-content h4 {
+    border-color: #334155;
+}
+body.dark-theme .badge-active {
+    background: rgba(17, 166, 82, 0.2);
+    color: #4ade80;
+}
+body.dark-theme .badge-inactive {
+    background: rgba(230, 57, 70, 0.2);
+    color: #fb7185;
+}
+body.dark-theme .badge-warning {
+    background: rgba(255, 183, 3, 0.2);
+    color: #fde047;
+}

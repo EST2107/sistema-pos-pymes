@@ -36,25 +36,8 @@
 
     <div class="panel large-panel">
         <h3>Ventas últimos 7 días</h3>
-
-        <div class="fake-chart">
-            <div style="height:45%"></div>
-            <div style="height:70%"></div>
-            <div style="height:35%"></div>
-            <div style="height:55%"></div>
-            <div style="height:85%"></div>
-            <div style="height:62%"></div>
-            <div style="height:68%"></div>
-        </div>
-
-        <div class="chart-labels">
-            <span>Lun</span>
-            <span>Mar</span>
-            <span>Mié</span>
-            <span>Jue</span>
-            <span>Vie</span>
-            <span>Sáb</span>
-            <span>Dom</span>
+        <div style="height: 250px; width: 100%;">
+            <canvas id="ventasDashboardChart"></canvas>
         </div>
     </div>
 
@@ -100,17 +83,16 @@
 
     <div class="panel">
         <h3>Ventas por categoría</h3>
-
-        <div class="donut"></div>
-
-        <div class="legend">
-            <span>🔵 Bebidas</span>
-            <span>🟢 Alimentos</span>
-            <span>🟡 Limpieza</span>
-            <span>🔴 Otros</span>
+        <div style="height: 250px; width: 100%;">
+            <canvas id="categoriasChart"></canvas>
         </div>
     </div>
 
 </div>
 
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}?v=3"></script>
 {% endblock %}

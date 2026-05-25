@@ -5,8 +5,11 @@ from app.models.usuario import Usuario
 from app.models.producto import Producto
 from .categoria import Categoria
 from .marca import Marca
+from .proveedor import Proveedor
 from .unidad_medida import UnidadMedida
 from app.models.cliente import Cliente
 from app.models.venta import Venta
 from app.models.detalle_venta import DetalleVenta
 from app.models.inventario import Inventario
+from app.models.compra import Compra
+from app.models.detalle_compra import DetalleCompra

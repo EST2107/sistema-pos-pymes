@@ -24,3 +24,15 @@ class Venta(db.Model):
     detalles = db.relationship('DetalleVenta', backref='venta', lazy=True, cascade="all, delete-orphan")
     usuario = db.relationship('Usuario', lazy=True)
     cliente = db.relationship('Cliente', lazy=True)
+
+    def to_dict(self):
+        return {
+            "id_venta": self.id_venta,
+            "numero_venta": self.numero_venta,
+            "subtotal": float(self.subtotal) if self.subtotal else 0.0,
+            "descuento": float(self.descuento) if self.descuento else 0.0,
+            "impuesto": float(self.impuesto) if self.impuesto else 0.0,
+            "total": float(self.total) if self.total else 0.0,
+            "estado": self.estado,
+            "fecha_venta": self.fecha_venta.strftime("%Y-%m-%d %H:%M:%S") if self.fecha_venta else ""
+        }

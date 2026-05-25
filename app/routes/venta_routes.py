@@ -11,6 +11,23 @@ venta_bp = Blueprint("venta", __name__, url_prefix="/ventas")
 def pos():
     return render_template("ventas/pos.html")
 
+@venta_bp.route("/historial")
+@login_required
+def historial():
+    return render_template("ventas/historial.html")
+
+@venta_bp.route("/api/historial", methods=["GET"])
+@login_required
+def api_historial():
+    ventas = Venta.query.filter_by(id_empresa=current_user.id_empresa).order_by(Venta.fecha_venta.desc()).all()
+    res = []
+    for v in ventas:
+        cliente = Cliente.query.get(v.id_cliente) if v.id_cliente else None
+        d = v.to_dict()
+        d["cliente"] = cliente.nombre if cliente else "Público General"
+        res.append(d)
+    return jsonify(res)
+
 @venta_bp.route("/api/productos", methods=["GET"])
 @login_required
 def api_productos():

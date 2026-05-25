@@ -6,8 +6,18 @@
     <title>POS Inventario</title>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark-theme');
+        }
+    </script>
 </head>
-<body>
+<body class="">
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+    </script>
 
 <div class="app-layout">
 

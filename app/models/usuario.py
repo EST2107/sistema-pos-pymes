@@ -27,3 +27,14 @@ class Usuario(UserMixin, db.Model):
 
     def get_id(self):
         return str(self.id_usuario)
+
+    def to_dict(self):
+        return {
+            "id_usuario": self.id_usuario,
+            "id_rol": self.id_rol,
+            "usuario": self.usuario,
+            "nombre_completo": self.nombre_completo,
+            "correo": self.correo,
+            "telefono": self.telefono,
+            "estado": self.estado
+        }

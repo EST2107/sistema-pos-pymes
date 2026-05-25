@@ -11,3 +11,11 @@ class Rol(db.Model):
     descripcion = db.Column(db.Text)
     estado = db.Column(db.Enum("activo", "inactivo"), default="activo")
     fecha_creacion = db.Column(db.DateTime)
+
+    def to_dict(self):
+        return {
+            "id_rol": self.id_rol,
+            "nombre": self.nombre,
+            "descripcion": self.descripcion,
+            "estado": self.estado
+        }

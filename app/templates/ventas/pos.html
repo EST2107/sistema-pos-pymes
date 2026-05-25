@@ -28,7 +28,10 @@
     <div class="pos-cart">
         <div class="cart-header">
             <h3>Carrito de compra</h3>
-            <button id="cancelSaleBtn" class="btn btn-danger" style="padding: 6px 10px; font-size: 12px;">Cancelar Venta</button>
+            <div>
+                <a href="{{ url_for('venta.historial') }}" class="btn btn-secondary" style="padding: 6px 10px; font-size: 12px; margin-right: 5px;">📜 Registro</a>
+                <button id="cancelSaleBtn" class="btn btn-danger" style="padding: 6px 10px; font-size: 12px;">Cancelar</button>
+            </div>
         </div>
         
         <div class="cart-items" id="cartItems">
@@ -143,5 +146,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/ventas.js') }}?v=2"></script>
+<script src="{{ url_for('static', filename='js/ventas.js') }}?v=3"></script>
 {% endblock %}

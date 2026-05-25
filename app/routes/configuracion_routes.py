@@ -1,0 +1,26 @@
+from flask import Blueprint, render_template, jsonify, request
+from flask_login import login_required, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
+from app.extensions import db
+from app.models import Usuario
+
+configuracion_bp = Blueprint("configuracion", __name__, url_prefix="/configuracion")
+
+@configuracion_bp.route("/")
+@login_required
+def index():
+    return render_template("configuracion/index.html")
+
+@configuracion_bp.route("/api/cambiar_password", methods=["POST"])
+@login_required
+def api_cambiar_password():
+    data = request.json
+    actual = data.get("password_actual")
+    nueva = data.get("password_nueva")
+    
+    if not check_password_hash(current_user.password_hash, actual):
+        return jsonify({"success": False, "message": "La contraseña actual es incorrecta"}), 400
+        
+    current_user.password_hash = generate_password_hash(nueva)
+    db.session.commit()
+    return jsonify({"success": True, "message": "Contraseña actualizada exitosamente"})

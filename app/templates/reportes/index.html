@@ -1,0 +1,29 @@
+{% extends 'layouts/base.html' %}
+
+{% block page_title %}Reportes y Analíticas{% endblock %}
+
+{% block content %}
+<div class="page-header" style="margin-bottom: 20px;">
+    <h2>Resumen General</h2>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+    <!-- Gráfico de Ventas -->
+    <div class="panel" style="padding: 20px;">
+        <h3>Ventas de los Últimos 7 Días</h3>
+        <canvas id="ventasChart" style="width: 100%; height: 300px;"></canvas>
+    </div>
+
+    <!-- Top Productos -->
+    <div class="panel" style="padding: 20px;">
+        <h3>Top 5 Productos Más Vendidos</h3>
+        <canvas id="productosChart" style="width: 100%; height: 300px;"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Chart.js para los gráficos -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/reportes.js') }}"></script>
+{% endblock %}

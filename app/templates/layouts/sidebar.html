@@ -18,14 +18,14 @@
 
     <nav class="menu">
         <a href="{{ url_for('dashboard.dashboard') }}" class="active">🏠 Dashboard</a>
-        <a href="{{ url_for('venta.pos') }}">🛒 Ventas</a>
+        <a href="{{ url_for('venta.historial') }}">🛒 Ventas</a>
         <a href="{{ url_for('producto.lista') }}">📦 Productos</a>
         <a href="{{ url_for('compra.lista') }}">🧾 Compras</a>
         <a href="{{ url_for('inventario.lista') }}">📊 Inventario</a>
         <a href="{{ url_for('proveedor.lista') }}">🚚 Proveedores</a>
-        <a href="{{ url_for('reporte.lista') }}">📈 Reportes</a>
+        <a href="{{ url_for('reporte.index') }}">📈 Reportes</a>
         <a href="{{ url_for('usuario.lista') }}">👥 Usuarios</a>
-        <a href="#">⚙ Configuración</a>
+        <a href="{{ url_for('configuracion.index') }}">⚙ Configuración</a>
     </nav>
 
     <a class="logout" href="{{ url_for('auth.logout') }}">🚪 Cerrar Sesión</a>
