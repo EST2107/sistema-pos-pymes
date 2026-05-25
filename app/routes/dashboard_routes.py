@@ -5,7 +5,23 @@ from app.models import Venta, Producto, DetalleVenta, Inventario
 from datetime import datetime, timedelta
 from sqlalchemy import func, text
 
+from app.utils.decorators import require_roles
+
 dashboard_bp = Blueprint("dashboard", __name__)
+
+from flask import redirect, url_for
+from flask_login import current_user
+
+@dashboard_bp.before_request
+def check_roles():
+    if current_user.is_authenticated and current_user.rol:
+        if current_user.rol.nombre == 'Cajero':
+            return redirect(url_for('venta.historial'))
+        elif current_user.rol.nombre == 'Inventario':
+            return redirect(url_for('producto.lista'))
+            
+    return require_roles('Administrador')
+
 
 
 @dashboard_bp.route("/dashboard")

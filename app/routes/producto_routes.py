@@ -4,7 +4,14 @@ from app.extensions import db
 from app.models import Producto, Categoria, Inventario, Marca, UnidadMedida
 from datetime import datetime
 
+from app.utils.decorators import require_roles
+
 producto_bp = Blueprint("producto", __name__, url_prefix="/productos")
+
+@producto_bp.before_request
+def check_roles():
+    return require_roles('Administrador', 'Cajero', 'Inventario')
+
 
 @producto_bp.route("/")
 @login_required

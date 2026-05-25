@@ -4,7 +4,14 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app.extensions import db
 from app.models import Usuario
 
+from app.utils.decorators import require_roles
+
 configuracion_bp = Blueprint("configuracion", __name__, url_prefix="/configuracion")
+
+@configuracion_bp.before_request
+def check_roles():
+    return require_roles('Administrador', 'Cajero', 'Inventario')
+
 
 @configuracion_bp.route("/")
 @login_required

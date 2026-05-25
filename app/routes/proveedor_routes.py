@@ -3,7 +3,14 @@ from flask_login import login_required, current_user
 from app.extensions import db
 from app.models import Proveedor
 
+from app.utils.decorators import require_roles
+
 proveedor_bp = Blueprint("proveedor", __name__, url_prefix="/proveedores")
+
+@proveedor_bp.before_request
+def check_roles():
+    return require_roles('Administrador', 'Cajero', 'Inventario')
+
 
 @proveedor_bp.route("/")
 @login_required

@@ -3,7 +3,14 @@ from flask_login import login_required, current_user
 from sqlalchemy import text
 from app.extensions import db
 
+from app.utils.decorators import require_roles
+
 reporte_bp = Blueprint("reporte", __name__, url_prefix="/reportes")
+
+@reporte_bp.before_request
+def check_roles():
+    return require_roles('Administrador')
+
 
 @reporte_bp.route("/")
 @login_required

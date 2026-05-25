@@ -4,7 +4,14 @@ from app.extensions import db
 from app.models import Producto, Cliente, Venta, DetalleVenta, Inventario
 from datetime import datetime
 
+from app.utils.decorators import require_roles
+
 venta_bp = Blueprint("venta", __name__, url_prefix="/ventas")
+
+@venta_bp.before_request
+def check_roles():
+    return require_roles('Administrador', 'Cajero')
+
 
 @venta_bp.route("/pos")
 @login_required

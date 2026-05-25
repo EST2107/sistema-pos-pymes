@@ -19,6 +19,13 @@ def login():
 
         if user and user.estado == "activo" and verificar_password(user.password_hash, password):
             login_user(user)
+            
+            rol_nombre = user.rol.nombre if user.rol else ''
+            if rol_nombre == 'Cajero':
+                return redirect(url_for("venta.historial"))
+            elif rol_nombre == 'Inventario':
+                return redirect(url_for("producto.lista"))
+                
             return redirect(url_for("dashboard.dashboard"))
 
         flash("Usuario o contraseña incorrectos", "danger")
