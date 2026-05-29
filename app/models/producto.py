@@ -24,8 +24,15 @@ class Producto(db.Model):
     def to_dict(self):
         return {
             "id_producto": self.id_producto,
+            "id_categoria": self.id_categoria,
+            "id_marca": self.id_marca,
+            "id_unidad": self.id_unidad,
             "codigo": self.codigo,
+            "codigo_barra": self.codigo_barra,
             "nombre": self.nombre,
+            "descripcion": self.descripcion,
+            "precio_compra": float(self.precio_compra) if self.precio_compra else 0.0,
             "precio_venta": float(self.precio_venta) if self.precio_venta else 0.0,
+            "aplica_impuesto": self.aplica_impuesto,
             "imagen_url": self.imagen_url or None
         }
