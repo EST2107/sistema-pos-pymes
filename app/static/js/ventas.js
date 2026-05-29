@@ -11,6 +11,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('searchInput').addEventListener('input', filtrarProductos);
     
+    // Método de pago selector de bancos
+    document.getElementById('paymentMethod').addEventListener('change', (e) => {
+        const bankSelection = document.getElementById('bankSelection');
+        if (e.target.value === 'Tarjeta') {
+            bankSelection.style.display = 'flex';
+        } else {
+            bankSelection.style.display = 'none';
+        }
+    });
+
     // Antiguo botón cobrar, ahora abre el modal
     document.getElementById('chargeBtn').addEventListener('click', abrirModalCheckout);
     document.getElementById('cancelSaleBtn').addEventListener('click', cancelarVenta);
@@ -113,7 +123,7 @@ function agregarAlCarrito(producto) {
         if (existente.cantidad < producto.stock) {
             existente.cantidad += 1;
         } else {
-            alert('Stock insuficiente');
+            showCustomAlert('Stock insuficiente');
             return;
         }
     } else {
@@ -136,7 +146,7 @@ function modificarCantidad(id_producto, delta) {
             cart = cart.filter(i => i.id_producto !== id_producto);
         } else if (item.cantidad > item.stock) {
             item.cantidad = item.stock;
-            alert('Stock insuficiente');
+            showCustomAlert('Stock insuficiente');
         }
         renderizarCarrito();
     }
@@ -203,7 +213,7 @@ function cancelarVenta() {
 
 function abrirModalCheckout() {
     if (cart.length === 0) {
-        alert('El carrito está vacío');
+        showCustomAlert('El carrito está vacío');
         return;
     }
     
@@ -277,7 +287,7 @@ function aplicarDescuento() {
     
     let subtotal = getSubtotal();
     if (val > subtotal) {
-        alert("El descuento no puede ser mayor al subtotal.");
+        showCustomAlert("El descuento no puede ser mayor al subtotal.");
         val = subtotal;
     }
     
@@ -311,11 +321,17 @@ function aplicarPropina() {
 // ---- CONFIRMAR COBRO ----
 
 async function confirmarCobro() {
+    let methodValue = document.getElementById('paymentMethod').value;
+    if (methodValue === 'Tarjeta') {
+        const selectedBank = document.querySelector('input[name="bankSelect"]:checked').value;
+        methodValue = `Tarjeta ${selectedBank}`;
+    }
+
     const payload = {
         cart: cart,
         descuento: descuentoAplicado,
         propina: propinaAplicada,
-        metodo_pago: document.getElementById('paymentMethod').value,
+        metodo_pago: methodValue,
         id_cliente: document.getElementById('clientSelect').value || null
     };
 
@@ -347,11 +363,11 @@ async function confirmarCobro() {
             renderizarCarrito();
             cargarProductos();
         } else {
-            alert('Error al cobrar: ' + result.message);
+            showCustomAlert('Error al cobrar: ' + result.message);
         }
     } catch (error) {
         console.error('Error en cobro:', error);
-        alert('Ocurrió un error al procesar la venta');
+        showCustomAlert('Ocurrió un error al procesar la venta');
     } finally {
         btn.disabled = false;
         btn.textContent = 'Registrar Venta';

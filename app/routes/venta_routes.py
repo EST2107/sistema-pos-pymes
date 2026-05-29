@@ -90,6 +90,7 @@ def api_cobrar():
             descuento=descuento,
             impuesto=0.0,  # IVA por producto se implementará después
             propina=propina,
+            metodo_pago=metodo_pago,
             estado="completada",
             total=0.0,
             subtotal=0.0

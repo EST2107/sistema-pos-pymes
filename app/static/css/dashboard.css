@@ -184,6 +184,22 @@ body {
     overflow-x: auto; /* Para tablas responsivas */
 }
 
+/* Limitar vistas de tablas (top 8 aprox) y habilitar scroll */
+.panel:has(table) {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.panel:has(table) thead th {
+    position: sticky;
+    top: -22px; /* Compensa el padding del panel */
+    background: white;
+    z-index: 10;
+}
+body.dark-theme .panel:has(table) thead th {
+    background: #1e293b;
+}
+
 .large-panel {
     min-height: 310px;
 }

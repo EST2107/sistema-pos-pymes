@@ -122,11 +122,11 @@ async function abrirModalEditar(id) {
             renderizarItemsNuevaCompra();
             document.getElementById('modalNuevaCompra').style.display = 'flex';
         } else {
-            alert('Error al cargar la compra: ' + r.message);
+            showCustomAlert('Error al cargar la compra: ' + r.message);
         }
     } catch(e) {
         console.error('Error al abrir edición de compra:', e);
-        alert('Error de servidor');
+        showCustomAlert('Error de servidor');
     }
 }
 
@@ -142,7 +142,7 @@ function agregarItem() {
     const costo = parseFloat(document.getElementById('compra_costo').value);
     
     if (!id_prod || isNaN(cant) || cant <= 0 || isNaN(costo) || costo < 0) {
-        alert("Campos de producto inválidos");
+        showCustomAlert("Campos de producto inválidos");
         return;
     }
     
@@ -199,11 +199,11 @@ async function registrarCompra() {
     const compraId = document.getElementById('compra_id').value;
 
     if (!id_prov) {
-        alert("Seleccione un proveedor");
+        showCustomAlert("Seleccione un proveedor");
         return;
     }
     if (itemsNuevaCompra.length === 0) {
-        alert("Agregue al menos un producto");
+        showCustomAlert("Agregue al menos un producto");
         return;
     }
     
@@ -227,18 +227,18 @@ async function registrarCompra() {
         });
         const r = await res.json();
         if (r.success) {
-            alert(r.message);
+            showCustomAlert(r.message, false);
             cerrarModalCompra();
             // Reload list
             const compRes = await fetch('/compras/api/list');
             comprasList = await compRes.json();
             renderizarTablaCompras();
         } else {
-            alert("Error: " + r.message);
+            showCustomAlert("Error: " + r.message);
         }
     } catch(e) {
         console.error(e);
-        alert("Error de servidor");
+        showCustomAlert("Error de servidor");
     } finally {
         btn.disabled = false;
     }
@@ -264,7 +264,7 @@ async function verDetalles(id) {
             });
             document.getElementById('modalDetalles').style.display = 'flex';
         } else {
-            alert("Error: " + r.message);
+            showCustomAlert("Error: " + r.message);
         }
     } catch(e) {
         console.error(e);

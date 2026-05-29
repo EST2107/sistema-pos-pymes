@@ -118,10 +118,10 @@ async function guardarAjusteStock(e) {
             document.getElementById('modalStock').style.display = 'none';
             cargarInventario();
         } else {
-            alert('Error: ' + result.message);
+            showCustomAlert('Error: ' + result.message);
         }
     } catch (error) {
         console.error(error);
-        alert('Error en el servidor');
+        showCustomAlert('Error en el servidor');
     }
 }

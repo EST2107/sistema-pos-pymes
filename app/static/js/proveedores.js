@@ -101,11 +101,11 @@ async function guardarProveedor(e) {
             document.getElementById('modalProveedor').style.display = 'none';
             cargarProveedores();
         } else {
-            alert('Error: ' + result.message);
+            showCustomAlert('Error: ' + result.message);
         }
     } catch (error) {
         console.error(error);
-        alert('Error en el servidor');
+        showCustomAlert('Error en el servidor');
     }
 }
 
@@ -117,10 +117,10 @@ async function eliminarProveedor(id) {
         if (result.success) {
             cargarProveedores();
         } else {
-            alert('Error: ' + result.message);
+            showCustomAlert('Error: ' + result.message);
         }
     } catch (error) {
         console.error(error);
-        alert('Error en el servidor');
+        showCustomAlert('Error en el servidor');
     }
 }

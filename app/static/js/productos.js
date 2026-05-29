@@ -226,11 +226,11 @@ async function guardarProducto(e) {
             cerrarModalProducto();
             cargarProductos();
         } else {
-            alert('Error al guardar: ' + result.message);
+            showCustomAlert('Error al guardar: ' + result.message);
         }
     } catch (error) {
         console.error("Error al guardar producto:", error);
-        alert('Ocurrió un error en el servidor');
+        showCustomAlert('Ocurrió un error en el servidor');
     }
 }
 
@@ -264,11 +264,11 @@ async function guardarEntrada(e) {
             cerrarModalEntrada();
             cargarProductos(); // Refrescar para ver el nuevo stock
         } else {
-            alert('Error al ingresar stock: ' + result.message);
+            showCustomAlert('Error al ingresar stock: ' + result.message);
         }
     } catch (error) {
         console.error("Error en entrada de stock:", error);
-        alert('Ocurrió un error en el servidor');
+        showCustomAlert('Ocurrió un error en el servidor');
     }
 }
 
@@ -288,11 +288,11 @@ async function guardarNuevaMarca(e) {
             document.getElementById('modalNuevaMarca').style.display = 'none';
             cargarSelects(); // Reload selects to show the new brand
         } else {
-            alert('Error al crear marca: ' + result.message);
+            showCustomAlert('Error al crear marca: ' + result.message);
         }
     } catch (error) {
         console.error("Error al crear marca:", error);
-        alert('Ocurrió un error en el servidor');
+        showCustomAlert('Ocurrió un error en el servidor');
     }
 }
 
@@ -309,10 +309,10 @@ async function eliminarProducto(id) {
         if (result.success) {
             cargarProductos();
         } else {
-            alert('Error al eliminar: ' + result.message);
+            showCustomAlert('Error al eliminar: ' + result.message);
         }
     } catch (error) {
         console.error("Error al eliminar:", error);
-        alert('Ocurrió un error en el servidor');
+        showCustomAlert('Ocurrió un error en el servidor');
     }
 }

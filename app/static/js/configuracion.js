@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const confirmar = document.getElementById('pass_confirmar').value;
 
         if (nueva !== confirmar) {
-            alert('Las contraseñas nuevas no coinciden');
+            showCustomAlert('Las contraseñas nuevas no coinciden');
             return;
         }
 
@@ -42,14 +42,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             const result = await res.json();
             if (result.success) {
-                alert(result.message);
+                showCustomAlert(result.message, false);
                 document.getElementById('formPassword').reset();
             } else {
-                alert('Error: ' + result.message);
+                showCustomAlert('Error: ' + result.message);
             }
         } catch (error) {
             console.error(error);
-            alert('Error en el servidor');
+            showCustomAlert('Error en el servidor');
         }
     });
 });

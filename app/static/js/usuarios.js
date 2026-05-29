@@ -127,11 +127,11 @@ async function guardarUsuario(e) {
             usuariosList = await uRes.json();
             renderizarTabla();
         } else {
-            alert('Error: ' + result.message);
+            showCustomAlert('Error: ' + result.message);
         }
     } catch (error) {
         console.error(error);
-        alert('Error en el servidor');
+        showCustomAlert('Error en el servidor');
     }
 }
 
@@ -145,10 +145,10 @@ async function eliminarUsuario(id) {
             usuariosList = await uRes.json();
             renderizarTabla();
         } else {
-            alert('Error: ' + result.message);
+            showCustomAlert('Error: ' + result.message);
         }
     } catch (error) {
         console.error(error);
-        alert('Error en el servidor');
+        showCustomAlert('Error en el servidor');
     }
 }

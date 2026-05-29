@@ -18,6 +18,7 @@ class Venta(db.Model):
     monto_recibido = db.Column(db.Numeric(12, 2), default=0.0)
     cambio = db.Column(db.Numeric(12, 2), default=0.0)
     estado = db.Column(db.Enum("completada", "anulada", "pendiente"), default="completada")
+    metodo_pago = db.Column(db.String(50), default="Efectivo")
     fecha_venta = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Relaciones
