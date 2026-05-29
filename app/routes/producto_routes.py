@@ -3,6 +3,8 @@ from flask_login import login_required, current_user
 from app.extensions import db
 from app.models import Producto, Categoria, Inventario, Marca, UnidadMedida
 from datetime import datetime
+import os
+from werkzeug.utils import secure_filename
 
 from app.utils.decorators import require_roles
 
@@ -78,20 +80,30 @@ def api_unidades():
 @producto_bp.route("/api/crear", methods=["POST"])
 @login_required
 def api_crear():
-    data = request.json
+    UPLOAD_FOLDER = os.path.join('app', 'static', 'uploads', 'productos')
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
     try:
+        imagen_file = request.files.get('imagen')
+        imagen_url = None
+        if imagen_file and imagen_file.filename:
+            filename = secure_filename(f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{imagen_file.filename}")
+            filepath = os.path.join(UPLOAD_FOLDER, filename)
+            imagen_file.save(filepath)
+            imagen_url = f"/static/uploads/productos/{filename}"
+
         nuevo_prod = Producto(
             id_empresa=current_user.id_empresa,
-            id_categoria=data.get("id_categoria") or None,
-            id_marca=data.get("id_marca") or None,
-            id_unidad=data.get("id_unidad") or None,
-            codigo=data.get("codigo", ""),
-            codigo_barra=data.get("codigo_barra", ""),
-            nombre=data.get("nombre"),
-            descripcion=data.get("descripcion", ""),
-            precio_compra=float(data.get("precio_compra", 0.0)),
-            precio_venta=float(data.get("precio_venta", 0.0)),
-            aplica_impuesto=data.get("aplica_impuesto", False),
+            id_categoria=request.form.get("id_categoria") or None,
+            id_marca=request.form.get("id_marca") or None,
+            id_unidad=request.form.get("id_unidad") or None,
+            codigo=request.form.get("codigo", ""),
+            codigo_barra=request.form.get("codigo_barra", ""),
+            nombre=request.form.get("nombre"),
+            descripcion=request.form.get("descripcion", ""),
+            precio_compra=float(request.form.get("precio_compra", 0.0)),
+            precio_venta=float(request.form.get("precio_venta", 0.0)),
+            aplica_impuesto=request.form.get("aplica_impuesto") == 'true',
+            imagen_url=imagen_url,
             estado="activo"
         )
         db.session.add(nuevo_prod)
@@ -115,22 +127,31 @@ def api_crear():
         db.session.rollback()
         return jsonify({"success": False, "message": str(e)}), 500
 
-@producto_bp.route("/api/editar/<int:id>", methods=["PUT"])
+@producto_bp.route("/api/editar/<int:id>", methods=["POST"])
 @login_required
 def api_editar(id):
-    data = request.json
+    UPLOAD_FOLDER = os.path.join('app', 'static', 'uploads', 'productos')
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
     try:
         prod = Producto.query.get_or_404(id)
-        prod.codigo = data.get("codigo", prod.codigo)
-        prod.codigo_barra = data.get("codigo_barra", prod.codigo_barra)
-        prod.nombre = data.get("nombre", prod.nombre)
-        prod.descripcion = data.get("descripcion", prod.descripcion)
-        prod.id_categoria = data.get("id_categoria") or None
-        prod.id_marca = data.get("id_marca") or None
-        prod.id_unidad = data.get("id_unidad") or None
-        prod.precio_compra = float(data.get("precio_compra", prod.precio_compra or 0.0))
-        prod.precio_venta = float(data.get("precio_venta", prod.precio_venta))
-        prod.aplica_impuesto = data.get("aplica_impuesto", prod.aplica_impuesto)
+
+        imagen_file = request.files.get('imagen')
+        if imagen_file and imagen_file.filename:
+            filename = secure_filename(f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{imagen_file.filename}")
+            filepath = os.path.join(UPLOAD_FOLDER, filename)
+            imagen_file.save(filepath)
+            prod.imagen_url = f"/static/uploads/productos/{filename}"
+
+        prod.codigo = request.form.get("codigo", prod.codigo)
+        prod.codigo_barra = request.form.get("codigo_barra", prod.codigo_barra)
+        prod.nombre = request.form.get("nombre", prod.nombre)
+        prod.descripcion = request.form.get("descripcion", prod.descripcion)
+        prod.id_categoria = request.form.get("id_categoria") or None
+        prod.id_marca = request.form.get("id_marca") or None
+        prod.id_unidad = request.form.get("id_unidad") or None
+        prod.precio_compra = float(request.form.get("precio_compra", prod.precio_compra or 0.0))
+        prod.precio_venta = float(request.form.get("precio_venta", prod.precio_venta))
+        prod.aplica_impuesto = request.form.get("aplica_impuesto") == 'true'
         
         db.session.commit()
         return jsonify({"success": True})

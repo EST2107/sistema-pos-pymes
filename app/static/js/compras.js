@@ -76,6 +76,7 @@ function renderizarTablaCompras() {
             <td><span class="badge badge-active">${c.estado}</span></td>
             <td>
                 <button class="btn-icon" title="Ver Detalles" onclick="verDetalles(${c.id_compra})">👁️</button>
+                <button class="btn-icon" title="Editar Compra" onclick="abrirModalEditar(${c.id_compra})">✏️</button>
             </td>
         `;
         tbody.appendChild(tr);
@@ -84,12 +85,49 @@ function renderizarTablaCompras() {
 
 function abrirModalCompra() {
     itemsNuevaCompra = [];
+    document.getElementById('compra_id').value = '';
+    document.getElementById('tituloModalCompra').textContent = 'Registrar Nueva Compra';
+    document.getElementById('btnGuardarCompra').textContent = 'Registrar Compra';
     document.getElementById('compra_proveedor').value = '';
     document.getElementById('compra_producto').value = '';
     document.getElementById('compra_cantidad').value = '1';
     document.getElementById('compra_costo').value = '0';
     renderizarItemsNuevaCompra();
     document.getElementById('modalNuevaCompra').style.display = 'flex';
+}
+
+async function abrirModalEditar(id) {
+    itemsNuevaCompra = [];
+    document.getElementById('compra_id').value = id;
+    document.getElementById('tituloModalCompra').textContent = 'Editar Compra';
+    document.getElementById('btnGuardarCompra').textContent = 'Guardar Cambios';
+
+    try {
+        const res = await fetch(`/compras/api/detalle/${id}`);
+        const r = await res.json();
+
+        if (r.success) {
+            const compraObj = comprasList.find(c => c.id_compra === id);
+            if (compraObj) {
+                document.getElementById('compra_proveedor').value = compraObj.id_proveedor || '';
+            }
+
+            itemsNuevaCompra = r.detalles.map(d => ({
+                id_producto: d.id_producto,
+                nombre: d.producto_nombre,
+                cantidad: d.cantidad,
+                costo_unitario: d.precio_unitario
+            }));
+
+            renderizarItemsNuevaCompra();
+            document.getElementById('modalNuevaCompra').style.display = 'flex';
+        } else {
+            alert('Error al cargar la compra: ' + r.message);
+        }
+    } catch(e) {
+        console.error('Error al abrir edición de compra:', e);
+        alert('Error de servidor');
+    }
 }
 
 function cerrarModalCompra() {
@@ -158,6 +196,8 @@ function renderizarItemsNuevaCompra() {
 
 async function registrarCompra() {
     const id_prov = document.getElementById('compra_proveedor').value;
+    const compraId = document.getElementById('compra_id').value;
+
     if (!id_prov) {
         alert("Seleccione un proveedor");
         return;
@@ -172,12 +212,16 @@ async function registrarCompra() {
         items: itemsNuevaCompra
     };
     
+    const isEdit = compraId !== '';
+    const url = isEdit ? `/compras/api/editar/${compraId}` : '/compras/api/crear';
+    const method = isEdit ? 'PUT' : 'POST';
+
     const btn = document.getElementById('btnGuardarCompra');
     btn.disabled = true;
     
     try {
-        const res = await fetch('/compras/api/crear', {
-            method: 'POST',
+        const res = await fetch(url, {
+            method: method,
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(payload)
         });

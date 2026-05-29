@@ -33,6 +33,18 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('formProducto').addEventListener('submit', guardarProducto);
     document.getElementById('formEntrada').addEventListener('submit', guardarEntrada);
     document.getElementById('formNuevaMarca').addEventListener('submit', guardarNuevaMarca);
+
+    // Preview de imagen al seleccionar archivo
+    document.getElementById('prod_imagen').addEventListener('change', function() {
+        const preview = document.getElementById('prod_imagen_preview');
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                preview.innerHTML = `<img src="${e.target.result}" style="max-width: 120px; max-height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid #e1e7f0; margin-top: 4px;">`;
+            };
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
 });
 
 async function cargarSelects() {
@@ -99,8 +111,12 @@ function renderizarTabla() {
         
         let badgeClass = p.estado === 'activo' ? 'badge-active' : 'badge-inactive';
         let stockStyle = p.stock <= 0 ? 'color: red; font-weight: bold;' : '';
+        let imgHtml = p.imagen_url
+            ? `<img src="${p.imagen_url}" style="width: 44px; height: 44px; object-fit: cover; border-radius: 8px; border: 1px solid #e1e7f0;">`
+            : `<span style="font-size: 26px;">📦</span>`;
         
         tr.innerHTML = `
+            <td>${imgHtml}</td>
             <td>${p.codigo || '-'}</td>
             <td>${p.nombre}</td>
             <td>${p.categoria_nombre}</td>
@@ -124,6 +140,7 @@ function abrirModalCrear() {
     document.getElementById('modalProductoTitle').textContent = 'Nuevo Producto';
     document.getElementById('formProducto').reset();
     document.getElementById('prod_id').value = '';
+    document.getElementById('prod_imagen_preview').innerHTML = '';
     document.getElementById('modalProducto').style.display = 'flex';
     calcularIvaEnModal();
 }
@@ -155,40 +172,54 @@ function abrirModalEditar(id) {
     document.getElementById('prod_precio_venta').value = p.precio_venta.toFixed(2);
     document.getElementById('prod_aplica_impuesto').checked = p.aplica_impuesto || false;
     
+    // Mostrar imagen actual si existe
+    const preview = document.getElementById('prod_imagen_preview');
+    if (p.imagen_url) {
+        preview.innerHTML = `<img src="${p.imagen_url}" style="max-width: 120px; max-height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid #e1e7f0; margin-top: 4px;">`;
+    } else {
+        preview.innerHTML = '';
+    }
+    document.getElementById('prod_imagen').value = '';
+    
     document.getElementById('modalProducto').style.display = 'flex';
     calcularIvaEnModal();
 }
 
 function cerrarModalProducto() {
     document.getElementById('modalProducto').style.display = 'none';
+    document.getElementById('prod_imagen_preview').innerHTML = '';
+    document.getElementById('prod_imagen').value = '';
 }
 
 async function guardarProducto(e) {
     e.preventDefault();
     
     const id = document.getElementById('prod_id').value;
-    const payload = {
-        codigo: document.getElementById('prod_codigo').value,
-        codigo_barra: document.getElementById('prod_codigo_barra').value,
-        nombre: document.getElementById('prod_nombre').value,
-        descripcion: document.getElementById('prod_descripcion').value,
-        id_categoria: document.getElementById('prod_categoria').value,
-        id_marca: document.getElementById('prod_marca').value,
-        id_unidad: document.getElementById('prod_unidad').value,
-        precio_compra: document.getElementById('prod_precio_compra').value,
-        precio_venta: document.getElementById('prod_precio_venta').value,
-        aplica_impuesto: document.getElementById('prod_aplica_impuesto').checked
-    };
+    const fileInput = document.getElementById('prod_imagen');
+    
+    const formData = new FormData();
+    formData.append('codigo', document.getElementById('prod_codigo').value);
+    formData.append('codigo_barra', document.getElementById('prod_codigo_barra').value);
+    formData.append('nombre', document.getElementById('prod_nombre').value);
+    formData.append('descripcion', document.getElementById('prod_descripcion').value);
+    formData.append('id_categoria', document.getElementById('prod_categoria').value);
+    formData.append('id_marca', document.getElementById('prod_marca').value);
+    formData.append('id_unidad', document.getElementById('prod_unidad').value);
+    formData.append('precio_compra', document.getElementById('prod_precio_compra').value);
+    formData.append('precio_venta', document.getElementById('prod_precio_venta').value);
+    formData.append('aplica_impuesto', document.getElementById('prod_aplica_impuesto').checked);
+    
+    if (fileInput.files.length > 0) {
+        formData.append('imagen', fileInput.files[0]);
+    }
     
     const isEdit = id !== '';
     const url = isEdit ? `/productos/api/editar/${id}` : '/productos/api/crear';
-    const method = isEdit ? 'PUT' : 'POST';
     
     try {
         const response = await fetch(url, {
-            method: method,
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(payload)
+            method: 'POST',
+            body: formData
         });
         const result = await response.json();
         if (result.success) {

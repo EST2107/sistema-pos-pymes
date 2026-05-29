@@ -29,6 +29,7 @@
     <table id="productosTable">
         <thead>
             <tr>
+                <th>Imagen</th>
                 <th>Código</th>
                 <th>Producto</th>
                 <th>Categoría</th>
@@ -102,6 +103,12 @@
                 </div>
             </div>
             
+            <div style="margin-bottom: 10px;">
+                <label>Imagen de Referencia</label>
+                <input type="file" id="prod_imagen" accept="image/*" class="form-control" style="width: 100%;">
+                <div id="prod_imagen_preview" style="margin-top: 8px;"></div>
+            </div>
+
             <div style="margin-bottom: 10px;">
                 <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
                     <input type="checkbox" id="prod_aplica_impuesto">

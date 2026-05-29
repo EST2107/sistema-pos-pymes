@@ -27,6 +27,7 @@ def api_list():
         prov = Proveedor.query.get(c.id_proveedor) if c.id_proveedor else None
         d = c.to_dict()
         d["proveedor_nombre"] = prov.nombre if prov else "Desconocido"
+        d["id_proveedor"] = c.id_proveedor
         res.append(d)
     return jsonify(res)
 
@@ -114,4 +115,71 @@ def api_detalle(id):
             
         return jsonify({"success": True, "detalles": res_detalles})
     except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+@compra_bp.route("/api/editar/<int:id>", methods=["PUT"])
+@login_required
+def api_editar(id):
+    compra = Compra.query.get_or_404(id)
+    if compra.id_empresa != current_user.id_empresa:
+        return jsonify({"success": False, "message": "Acceso denegado"}), 403
+        
+    data = request.json
+    id_proveedor = data.get("id_proveedor")
+    items = data.get("items", [])
+    
+    if not items:
+        return jsonify({"success": False, "message": "No hay productos en la compra"}), 400
+        
+    try:
+        # 1. Revertir inventario de la compra anterior
+        detalles_previos = DetalleCompra.query.filter_by(id_compra=id).all()
+        for dp in detalles_previos:
+            inv = Inventario.query.filter_by(id_producto=dp.id_producto).first()
+            if inv:
+                inv.stock_actual = float(inv.stock_actual) - float(dp.cantidad)
+                
+        # 2. Eliminar detalles de compra anteriores
+        DetalleCompra.query.filter_by(id_compra=id).delete()
+        
+        # 3. Guardar nuevos datos de compra y calcular total
+        compra.id_proveedor = id_proveedor
+        subtotal_compra = 0.0
+        
+        for item in items:
+            producto_id = item.get("id_producto")
+            cantidad = float(item.get("cantidad", 0))
+            costo_unitario = float(item.get("costo_unitario", 0))
+            subtotal_item = cantidad * costo_unitario
+            subtotal_compra += subtotal_item
+            
+            detalle = DetalleCompra(
+                id_compra=compra.id_compra,
+                id_producto=producto_id,
+                cantidad=cantidad,
+                precio_unitario=costo_unitario,
+                subtotal=subtotal_item
+            )
+            db.session.add(detalle)
+            
+            # Sumar al inventario
+            inv = Inventario.query.filter_by(id_producto=producto_id).first()
+            if inv:
+                inv.stock_actual = float(inv.stock_actual) + cantidad
+            else:
+                inv = Inventario(
+                    id_sucursal=current_user.id_sucursal,
+                    id_producto=producto_id,
+                    stock_actual=cantidad,
+                    stock_minimo=0
+                )
+                db.session.add(inv)
+                
+        compra.subtotal = subtotal_compra
+        compra.total = subtotal_compra
+        
+        db.session.commit()
+        return jsonify({"success": True, "message": "Compra actualizada exitosamente"})
+    except Exception as e:
+        db.session.rollback()
         return jsonify({"success": False, "message": str(e)}), 500

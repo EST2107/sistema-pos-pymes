@@ -23,6 +23,8 @@ body {
     padding: 22px;
     display: flex;
     flex-direction: column;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
 }
 
 .brand {
@@ -179,6 +181,7 @@ body {
 
 .panel {
     padding: 22px;
+    overflow-x: auto; /* Para tablas responsivas */
 }
 
 .large-panel {
@@ -589,11 +592,55 @@ th {
     color: #11a652;
 }
 
+/* Mobile Navigation Base Styles */
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: #07152f;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    align-items: center;
+    justify-content: center;
+}
+.mobile-menu-btn:hover {
+    background: #e1e7f0;
+}
+
+.mobile-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
 @media (max-width: 1000px) {
+    /* Menu lateral deslizable */
     .sidebar {
-        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        transform: translateX(-100%);
+    }
+    .sidebar.active {
+        transform: translateX(0);
+    }
+    .mobile-overlay.active {
+        display: block;
+        opacity: 1;
     }
 
+    .mobile-menu-btn {
+        display: flex;
+    }
+
+    /* Grids a 1 columna */
     .cards-grid,
     .dashboard-grid {
         grid-template-columns: 1fr;
@@ -601,6 +648,45 @@ th {
 
     .main-content {
         padding: 16px;
+    }
+
+    /* POS Móvil: Apilar carrito debajo de productos */
+    .pos-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+    
+    .pos-products-grid {
+        max-height: 50vh;
+    }
+    
+    .pos-cart {
+        min-height: 400px;
+        margin-bottom: 24px;
+    }
+
+    /* Botones más grandes para touch */
+    .btn {
+        padding: 12px 18px;
+        min-height: 44px;
+    }
+
+    .btn-icon {
+        padding: 8px;
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    /* Modales responsivos */
+    .modal-content {
+        margin: 10px;
+        max-width: calc(100% - 20px) !important;
+        padding: 20px !important;
+    }
+
+    /* Evitar zoom automático en iOS al tocar inputs */
+    .form-control {
+        font-size: 16px;
     }
 }
 
@@ -652,6 +738,12 @@ body.dark-theme .product-title {
 }
 body.dark-theme h1, body.dark-theme h2, body.dark-theme h3 {
     color: #ffffff;
+}
+body.dark-theme .mobile-menu-btn {
+    color: #ffffff;
+}
+body.dark-theme .mobile-menu-btn:hover {
+    background: #334155;
 }
 body.dark-theme .btn-secondary {
     background: #1e293b;

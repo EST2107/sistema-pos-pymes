@@ -27,5 +27,5 @@ class Producto(db.Model):
             "codigo": self.codigo,
             "nombre": self.nombre,
             "precio_venta": float(self.precio_venta) if self.precio_venta else 0.0,
-            "imagen_url": self.imagen_url
+            "imagen_url": self.imagen_url or None
         }

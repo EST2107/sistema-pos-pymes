@@ -29,6 +29,16 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('openPropinaModalBtn').addEventListener('click', abrirModalPropina);
     document.getElementById('closePropinaModalBtn').addEventListener('click', cerrarModalPropina);
     document.getElementById('applyPropinaBtn').addEventListener('click', aplicarPropina);
+
+    // Eventos del Modal de Éxito
+    document.getElementById('successCloseBtn').addEventListener('click', () => {
+        document.getElementById('successModal').style.display = 'none';
+    });
+    document.getElementById('successPrintBtn').addEventListener('click', () => {
+        const ventaId = document.getElementById('successPrintBtn').dataset.ventaId;
+        if (ventaId) window.open(`/ventas/factura/${ventaId}`, '_blank');
+        document.getElementById('successModal').style.display = 'none';
+    });
 });
 
 async function cargarProductos() {
@@ -323,16 +333,19 @@ async function confirmarCobro() {
         const result = await response.json();
         
         if (result.success) {
-            alert('¡Venta registrada exitosamente!');
-            
-            // Limpiar todo
             cerrarModalCheckout();
+
+            // Mostrar modal de éxito con los datos de la venta
+            const totalPagado = document.getElementById('modalTotal').textContent;
+            showSuccessModal(result.venta_id, totalPagado);
+
+            // Limpiar carrito
             cart = [];
             descuentoAplicado = 0;
             propinaAplicada = 0;
             propinaManual = null;
             renderizarCarrito();
-            cargarProductos(); // Recargar productos para actualizar stock
+            cargarProductos();
         } else {
             alert('Error al cobrar: ' + result.message);
         }
@@ -343,4 +356,15 @@ async function confirmarCobro() {
         btn.disabled = false;
         btn.textContent = 'Registrar Venta';
     }
+}
+
+function showSuccessModal(ventaId, totalDisplay) {
+    // Rellenar info de la venta
+    document.getElementById('successVentaNum').textContent = `#${ventaId}`;
+    document.getElementById('successTotal').textContent = totalDisplay;
+    // Guardar el id en el botón de imprimir
+    document.getElementById('successPrintBtn').dataset.ventaId = ventaId;
+    // Mostrar el modal
+    const modal = document.getElementById('successModal');
+    modal.style.display = 'flex';
 }

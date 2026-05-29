@@ -18,27 +18,27 @@
 
     <nav class="menu">
         {% if current_user.rol.nombre == 'Administrador' %}
-        <a href="{{ url_for('dashboard.dashboard') }}" class="active">🏠 Dashboard</a>
+        <a href="{{ url_for('dashboard.dashboard') }}" class="{% if request.blueprint == 'dashboard' %}active{% endif %}">🏠 Dashboard</a>
         {% endif %}
 
         {% if current_user.rol.nombre in ['Administrador', 'Cajero'] %}
-        <a href="{{ url_for('venta.historial') }}">🛒 Ventas</a>
+        <a href="{{ url_for('venta.historial') }}" class="{% if request.blueprint == 'venta' %}active{% endif %}">🛒 Ventas</a>
         {% endif %}
 
         {% if current_user.rol.nombre in ['Administrador', 'Cajero', 'Inventario'] %}
-        <a href="{{ url_for('producto.lista') }}">📦 Productos</a>
-        <a href="{{ url_for('compra.lista') }}">🧾 Compras</a>
-        <a href="{{ url_for('inventario.lista') }}">📊 Inventario</a>
-        <a href="{{ url_for('proveedor.lista') }}">🚚 Proveedores</a>
+        <a href="{{ url_for('producto.lista') }}" class="{% if request.blueprint == 'producto' %}active{% endif %}">📦 Productos</a>
+        <a href="{{ url_for('compra.lista') }}" class="{% if request.blueprint == 'compra' %}active{% endif %}">🧾 Compras</a>
+        <a href="{{ url_for('inventario.lista') }}" class="{% if request.blueprint == 'inventario' %}active{% endif %}">📊 Inventario</a>
+        <a href="{{ url_for('proveedor.lista') }}" class="{% if request.blueprint == 'proveedor' %}active{% endif %}">🚚 Proveedores</a>
         {% endif %}
 
         {% if current_user.rol.nombre == 'Administrador' %}
-        <a href="{{ url_for('reporte.index') }}">📈 Reportes</a>
-        <a href="{{ url_for('usuario.lista') }}">👥 Usuarios</a>
+        <a href="{{ url_for('reporte.index') }}" class="{% if request.blueprint == 'reporte' %}active{% endif %}">📈 Reportes</a>
+        <a href="{{ url_for('usuario.lista') }}" class="{% if request.blueprint == 'usuario' %}active{% endif %}">👥 Usuarios</a>
         {% endif %}
 
         {% if current_user.rol.nombre in ['Administrador', 'Cajero', 'Inventario'] %}
-        <a href="{{ url_for('configuracion.index') }}">⚙ Configuración</a>
+        <a href="{{ url_for('configuracion.index') }}" class="{% if request.blueprint == 'configuracion' %}active{% endif %}">⚙ Configuración</a>
         {% endif %}
     </nav>
 

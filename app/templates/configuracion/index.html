@@ -3,7 +3,7 @@
 {% block page_title %}Configuración{% endblock %}
 
 {% block content %}
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+<div style="display: grid; grid-template-columns: {% if current_user.rol.nombre == 'Administrador' %}1fr 1fr{% else %}1fr{% endif %}; gap: 20px;">
     <!-- Preferencias -->
     <div class="panel" style="padding: 20px;">
         <h3>Preferencias del Sistema</h3>
@@ -46,6 +46,7 @@
         </div>
     </div>
 
+    {% if current_user.rol.nombre == 'Administrador' %}
     <!-- Seguridad -->
     <div class="panel" style="padding: 20px;">
         <h3>Seguridad</h3>
@@ -68,6 +69,7 @@
             <button type="submit" class="btn btn-primary" style="width: 100%;">Actualizar Contraseña</button>
         </form>
     </div>
+    {% endif %}
 </div>
 
 <style>
