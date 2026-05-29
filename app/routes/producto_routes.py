@@ -33,6 +33,7 @@ def api_list():
         data["categoria_nombre"] = cat.nombre if cat else "Sin Categoría"
         data["precio_compra"] = float(p.precio_compra) if p.precio_compra else 0.0
         data["stock"] = float(inv.stock_actual) if inv else 0.0
+        data["stock_minimo"] = float(inv.stock_minimo) if inv and inv.stock_minimo else 0.0
         data["estado"] = p.estado
         data["id_marca"] = p.id_marca
         data["id_unidad"] = p.id_unidad
@@ -118,7 +119,7 @@ def api_crear():
             id_sucursal=current_user.id_sucursal,
             id_producto=nuevo_prod.id_producto,
             stock_actual=0.0,
-            stock_minimo=0.0
+            stock_minimo=float(request.form.get("stock_minimo", 0.0))
         )
         db.session.add(nuevo_inv)
         db.session.commit()
@@ -152,6 +153,11 @@ def api_editar(id):
         prod.precio_compra = float(request.form.get("precio_compra", prod.precio_compra or 0.0))
         prod.precio_venta = float(request.form.get("precio_venta", prod.precio_venta))
         prod.aplica_impuesto = request.form.get("aplica_impuesto") == 'true'
+        
+        # Actualizar stock mínimo si existe el registro de inventario
+        inv = Inventario.query.filter_by(id_producto=prod.id_producto).first()
+        if inv:
+            inv.stock_minimo = float(request.form.get("stock_minimo", inv.stock_minimo or 0.0))
         
         db.session.commit()
         return jsonify({"success": True})

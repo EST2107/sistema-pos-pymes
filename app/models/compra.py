@@ -21,6 +21,7 @@ class Compra(db.Model):
             "id_compra": self.id_compra,
             "numero_compra": self.numero_compra,
             "subtotal": float(self.subtotal),
+            "impuesto": float(self.impuesto),
             "total": float(self.total),
             "estado": self.estado,
             "fecha_compra": self.fecha_compra.strftime("%Y-%m-%d %H:%M:%S"),

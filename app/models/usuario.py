@@ -36,5 +36,6 @@ class Usuario(UserMixin, db.Model):
             "nombre_completo": self.nombre_completo,
             "correo": self.correo,
             "telefono": self.telefono,
+            "imagen_url": self.imagen_url,
             "estado": self.estado
         }

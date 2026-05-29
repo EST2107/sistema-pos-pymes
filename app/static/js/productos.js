@@ -170,6 +170,7 @@ function abrirModalEditar(id) {
     document.getElementById('prod_unidad').value = p.id_unidad || '';
     document.getElementById('prod_precio_compra').value = p.precio_compra.toFixed(2);
     document.getElementById('prod_precio_venta').value = p.precio_venta.toFixed(2);
+    document.getElementById('prod_stock_minimo').value = p.stock_minimo || 0;
     document.getElementById('prod_aplica_impuesto').checked = p.aplica_impuesto || false;
     
     // Mostrar imagen actual si existe
@@ -207,6 +208,7 @@ async function guardarProducto(e) {
     formData.append('id_unidad', document.getElementById('prod_unidad').value);
     formData.append('precio_compra', document.getElementById('prod_precio_compra').value);
     formData.append('precio_venta', document.getElementById('prod_precio_venta').value);
+    formData.append('stock_minimo', document.getElementById('prod_stock_minimo').value);
     formData.append('aplica_impuesto', document.getElementById('prod_aplica_impuesto').checked);
     
     if (fileInput.files.length > 0) {

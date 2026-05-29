@@ -18,5 +18,7 @@ class Cliente(db.Model):
             "id_cliente": self.id_cliente,
             "nombre": self.nombre,
             "cedula": self.cedula,
-            "telefono": self.telefono
+            "telefono": self.telefono,
+            "direccion": self.direccion,
+            "estado": self.estado
         }
