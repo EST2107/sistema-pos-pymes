@@ -3,6 +3,7 @@ from flask_login import login_user, logout_user, login_required
 
 from app.models.usuario import Usuario
 from app.services.auth_service import verificar_password
+from app.services.auditoria_service import registrar_auditoria
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -19,6 +20,7 @@ def login():
 
         if user and user.estado == "activo" and verificar_password(user.password_hash, password):
             login_user(user)
+            registrar_auditoria("INICIO SESION", "Auth", f"Usuario logueado exitosamente")
             
             rol_nombre = user.rol.nombre if user.rol else ''
             if rol_nombre == 'Cajero':
@@ -36,5 +38,6 @@ def login():
 @auth_bp.route("/logout")
 @login_required
 def logout():
+    registrar_auditoria("CIERRE SESION", "Auth", "Usuario cerró sesión")
     logout_user()
     return redirect(url_for("auth.login"))

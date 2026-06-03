@@ -13,7 +13,7 @@ from app.routes.reporte_routes import reporte_bp
 from app.routes.proveedor_routes import proveedor_bp
 from app.routes.usuario_routes import usuario_bp
 from app.routes.configuracion_routes import configuracion_bp
-
+from app.routes.auditoria_routes import auditoria_bp
 from app.models import Usuario
 
 
@@ -53,5 +53,5 @@ def create_app():
     app.register_blueprint(proveedor_bp)
     app.register_blueprint(usuario_bp)
     app.register_blueprint(configuracion_bp)
-
+    app.register_blueprint(auditoria_bp)
     return app

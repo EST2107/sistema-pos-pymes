@@ -35,6 +35,7 @@
         {% if current_user.rol.nombre == 'Administrador' %}
         <a href="{{ url_for('reporte.index') }}" class="{% if request.blueprint == 'reporte' %}active{% endif %}">📈 Reportes</a>
         <a href="{{ url_for('usuario.lista') }}" class="{% if request.blueprint == 'usuario' %}active{% endif %}">👥 Usuarios</a>
+        <a href="{{ url_for('auditoria.index') }}" class="{% if request.blueprint == 'auditoria' %}active{% endif %}">📋 Auditoría</a>
         {% endif %}
 
         {% if current_user.rol.nombre in ['Administrador', 'Cajero', 'Inventario'] %}

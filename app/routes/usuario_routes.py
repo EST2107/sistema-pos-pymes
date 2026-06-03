@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from werkzeug.security import generate_password_hash
 from app.extensions import db
 from app.models import Usuario, Rol
+from app.services.auditoria_service import registrar_auditoria
 
 from app.utils.decorators import require_roles
 
@@ -54,6 +55,7 @@ def api_crear():
         )
         db.session.add(nuevo)
         db.session.commit()
+        registrar_auditoria("CREAR USUARIO", "Usuarios", f"Usuario {nuevo.usuario} creado")
         return jsonify({"success": True})
     except Exception as e:
         db.session.rollback()
@@ -75,6 +77,7 @@ def api_editar(id):
         u.id_rol = data.get("id_rol", u.id_rol)
         
         db.session.commit()
+        registrar_auditoria("EDITAR USUARIO", "Usuarios", f"Usuario {u.usuario} modificado")
         return jsonify({"success": True})
     except Exception as e:
         db.session.rollback()
@@ -90,6 +93,7 @@ def api_eliminar(id):
             
         u.estado = "inactivo"
         db.session.commit()
+        registrar_auditoria("ELIMINAR USUARIO", "Usuarios", f"Usuario {u.usuario} marcado como inactivo")
         return jsonify({"success": True})
     except Exception as e:
         db.session.rollback()

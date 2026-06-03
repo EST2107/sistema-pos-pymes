@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from app.extensions import db
 from app.models import Producto, Cliente, Venta, DetalleVenta, Inventario
 from datetime import datetime
+from app.services.auditoria_service import registrar_auditoria
 
 from app.utils.decorators import require_roles
 
@@ -129,6 +130,7 @@ def api_cobrar():
         nueva_venta.total = subtotal_venta - descuento + propina
         
         db.session.commit()
+        registrar_auditoria("NUEVA VENTA", "Ventas", {"venta_id": nueva_venta.id_venta, "numero": num_venta, "total": nueva_venta.total})
         return jsonify({"success": True, "message": "Venta procesada exitosamente", "venta_id": nueva_venta.id_venta})
         
     except Exception as e:

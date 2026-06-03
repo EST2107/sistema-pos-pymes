@@ -13,3 +13,4 @@ from app.models.detalle_venta import DetalleVenta
 from app.models.inventario import Inventario
 from app.models.compra import Compra
 from app.models.detalle_compra import DetalleCompra
+from app.models.auditoria import Auditoria
