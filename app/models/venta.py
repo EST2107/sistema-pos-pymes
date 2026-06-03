@@ -35,5 +35,6 @@ class Venta(db.Model):
             "impuesto": float(self.impuesto) if self.impuesto else 0.0,
             "total": float(self.total) if self.total else 0.0,
             "estado": self.estado,
+            "metodo_pago": self.metodo_pago,
             "fecha_venta": self.fecha_venta.strftime("%Y-%m-%d %H:%M:%S") if self.fecha_venta else ""
         }

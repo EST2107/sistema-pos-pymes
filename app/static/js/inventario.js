@@ -33,7 +33,8 @@ function renderizarTabla() {
     const filtrados = inventarioList.filter(p => {
         
         if (stockFilter === 'out' && p.stock_actual > 0) return false;
-        if (stockFilter === 'low' && p.stock_actual > p.stock_minimo) return false;
+        if (stockFilter === 'low' && (p.stock_actual <= 0 || p.stock_actual > p.stock_minimo)) return false;
+        if (stockFilter === 'normal' && p.stock_actual <= p.stock_minimo) return false;
 
         const q = query;
         return (p.nombre && p.nombre.toLowerCase().includes(q)) ||

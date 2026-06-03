@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('searchInput').addEventListener('input', renderizarTabla);
     document.getElementById('catFilter').addEventListener('change', renderizarTabla);
     document.getElementById('estadoFilter').addEventListener('change', renderizarTabla);
+    document.getElementById('impuestoFilter').addEventListener('change', renderizarTabla);
 
     // Botones de Modales
     document.getElementById('btnNuevoProducto').addEventListener('click', abrirModalCrear);
@@ -98,12 +99,14 @@ function renderizarTabla() {
     const search = document.getElementById('searchInput').value.toLowerCase();
     const cat = document.getElementById('catFilter').value;
     const estado = document.getElementById('estadoFilter').value;
+    const impuesto = document.getElementById('impuestoFilter').value;
     
     let filtrados = productosList.filter(p => {
         const matchSearch = p.nombre.toLowerCase().includes(search) || (p.codigo && p.codigo.toLowerCase().includes(search));
         const matchCat = cat === '' || String(p.id_categoria) === cat;
         const matchEstado = estado === '' || p.estado === estado;
-        return matchSearch && matchCat && matchEstado;
+        const matchImpuesto = impuesto === '' || String(p.aplica_impuesto) === impuesto;
+        return matchSearch && matchCat && matchEstado && matchImpuesto;
     });
     
     filtrados.forEach(p => {

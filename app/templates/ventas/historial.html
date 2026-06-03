@@ -8,6 +8,14 @@
         <div class="search-bar">
             <input type="text" id="searchInput" class="form-control" placeholder="Buscar por cliente o factura...">
         </div>
+        <input type="date" id="fechaInicioFilter" class="form-control" title="Fecha Inicio">
+        <input type="date" id="fechaFinFilter" class="form-control" title="Fecha Fin">
+        <select id="pagoFilter" class="form-control">
+            <option value="">Cualquier Método</option>
+            <option value="Efectivo">Efectivo</option>
+            <option value="Tarjeta">Tarjeta</option>
+            <option value="Transferencia">Transferencia</option>
+        </select>
     </div>
     <a href="{{ url_for('venta.pos') }}" class="btn btn-primary">Ir al Punto de Venta</a>
 </div>
@@ -68,6 +76,9 @@
     document.addEventListener('DOMContentLoaded', () => {
         cargarVentas();
         document.getElementById('searchInput').addEventListener('input', renderizarTabla);
+        document.getElementById('fechaInicioFilter').addEventListener('change', renderizarTabla);
+        document.getElementById('fechaFinFilter').addEventListener('change', renderizarTabla);
+        document.getElementById('pagoFilter').addEventListener('change', renderizarTabla);
     });
 
     async function cargarVentas() {
@@ -82,13 +93,27 @@
 
     function renderizarTabla() {
         const query = document.getElementById('searchInput').value.toLowerCase();
+        const fechaInicio = document.getElementById('fechaInicioFilter').value;
+        const fechaFin = document.getElementById('fechaFinFilter').value;
+        const pago = document.getElementById('pagoFilter').value;
         const tbody = document.querySelector('#tablaVentas tbody');
         tbody.innerHTML = '';
 
-        const filtrados = ventasList.filter(v => 
-            v.numero_venta.toLowerCase().includes(query) ||
-            v.cliente.toLowerCase().includes(query)
-        );
+        const filtrados = ventasList.filter(v => {
+            const matchSearch = v.numero_venta.toLowerCase().includes(query) || v.cliente.toLowerCase().includes(query);
+            
+            let matchFecha = true;
+            if (fechaInicio || fechaFin) {
+                // v.fecha_venta format: "YYYY-MM-DD HH:MM:SS"
+                const fechaVentaDate = new Date(v.fecha_venta).toISOString().split('T')[0];
+                if (fechaInicio && fechaVentaDate < fechaInicio) matchFecha = false;
+                if (fechaFin && fechaVentaDate > fechaFin) matchFecha = false;
+            }
+            
+            const matchPago = pago === '' || v.metodo_pago === pago;
+            
+            return matchSearch && matchFecha && matchPago;
+        });
 
         filtrados.forEach(v => {
             const tr = document.createElement('tr');

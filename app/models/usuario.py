@@ -21,6 +21,9 @@ class Usuario(UserMixin, db.Model):
     ultimo_acceso = db.Column(db.DateTime)
     fecha_creacion = db.Column(db.DateTime)
 
+    codigo_temporal = db.Column(db.String(10), nullable=True)
+    expiracion_codigo = db.Column(db.DateTime, nullable=True)
+
     empresa = db.relationship("Empresa", lazy=True)
     sucursal = db.relationship("Sucursal", lazy=True)
     rol = db.relationship("Rol", lazy=True)

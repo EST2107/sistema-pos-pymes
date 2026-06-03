@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('searchInput').addEventListener('input', renderizarTabla);
     document.getElementById('rolFilter').addEventListener('change', renderizarTabla);
+    document.getElementById('estadoFilter').addEventListener('change', renderizarTabla);
 
     document.getElementById('btnNuevoUsuario').addEventListener('click', () => {
         document.getElementById('modalUsuarioTitle').textContent = 'Nuevo Usuario';
@@ -48,11 +49,15 @@ async function cargarDatos() {
 function renderizarTabla() {
     const query = document.getElementById('searchInput').value.toLowerCase();
     const rolFilter = document.getElementById('rolFilter').value;
+    const estadoFilter = document.getElementById('estadoFilter').value;
     const tbody = document.querySelector('#tablaUsuarios tbody');
     tbody.innerHTML = '';
 
     const filtrados = usuariosList.filter(u => {
-        if (u.estado !== 'activo') return false;
+        if (estadoFilter && u.estado !== estadoFilter) return false;
+        // Keep the old logic if estadoFilter is empty, but wait, usually we want to see all if empty, but previously it hardcoded 'activo'
+        if (!estadoFilter && u.estado !== 'activo') return false; 
+        
         if (rolFilter && u.id_rol.toString() !== rolFilter) return false;
         const q = query;
         return (u.nombre_completo && u.nombre_completo.toLowerCase().includes(q)) ||
@@ -71,7 +76,7 @@ function renderizarTabla() {
             <td>${u.nombre_completo || '-'}</td>
             <td>${u.rol_nombre}</td>
             <td>${u.correo || '-'}</td>
-            <td><span class="badge badge-active">Activo</span></td>
+            <td><span class="badge badge-${u.estado === 'activo' ? 'active' : 'danger'}">${u.estado}</span></td>
             <td>
                 <button class="btn-icon" onclick="editarUsuario(${u.id_usuario})">✏️</button>
                 <button class="btn-icon delete" onclick="eliminarUsuario(${u.id_usuario})">🗑️</button>
