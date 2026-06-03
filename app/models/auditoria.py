@@ -2,29 +2,36 @@ from app.extensions import db
 from datetime import datetime
 
 class Auditoria(db.Model):
-    __tablename__ = "auditorias"
+    __tablename__ = "audit"
 
-    id_auditoria = db.Column(db.Integer, primary_key=True)
-    id_usuario = db.Column(db.Integer, db.ForeignKey("usuarios.id_usuario"), nullable=True)
-    id_empresa = db.Column(db.Integer, db.ForeignKey("empresas.id_empresa"), nullable=True)
-
-    accion = db.Column(db.String(255), nullable=False)
-    modulo = db.Column(db.String(100), nullable=False)
-    detalles = db.Column(db.Text, nullable=True)
-    ip_address = db.Column(db.String(50), nullable=True)
-    fecha = db.Column(db.DateTime, default=datetime.utcnow)
-
-    usuario = db.relationship("Usuario", lazy=True)
+    id_audit = db.Column(db.BigInteger, primary_key=True)
+    id_user = db.Column(db.String(20), nullable=True)
+    action = db.Column(db.Enum('crear', 'update', 'delete', 'login', 'logout'), nullable=False)
+    entity_affected = db.Column(db.String(100), nullable=False)
+    id_reference = db.Column(db.String(64), nullable=True)
+    date = db.Column(db.DateTime, default=datetime.now)
+    ip = db.Column(db.String(45), nullable=True)
+    device = db.Column(db.String(120), nullable=True)
 
     def to_dict(self):
+        nombre_usuario = "Sistema"
+        if self.id_user:
+            from app.models.usuario import Usuario
+            try:
+                user_id_int = int(self.id_user)
+                u = Usuario.query.get(user_id_int)
+                if u:
+                    nombre_usuario = u.usuario
+            except:
+                pass
+
         return {
-            "id_auditoria": self.id_auditoria,
-            "id_usuario": self.id_usuario,
-            "id_empresa": self.id_empresa,
-            "accion": self.accion,
-            "modulo": self.modulo,
-            "detalles": self.detalles,
-            "ip_address": self.ip_address,
-            "fecha": self.fecha.strftime("%Y-%m-%d %H:%M:%S") if self.fecha else None,
-            "nombre_usuario": self.usuario.usuario if self.usuario else "Sistema"
+            "id_auditoria": self.id_audit,
+            "id_usuario": self.id_user,
+            "accion": self.action,
+            "modulo": self.entity_affected,
+            "detalles": self.id_reference,
+            "ip_address": self.ip,
+            "fecha": self.date.strftime("%Y-%m-%d %H:%M:%S") if self.date else None,
+            "nombre_usuario": nombre_usuario
         }

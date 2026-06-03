@@ -61,7 +61,12 @@ function renderizarTabla() {
 
     filtrados.forEach(u => {
         const tr = document.createElement('tr');
+        const avatarHtml = u.imagen_url 
+            ? `<img src="${u.imagen_url}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">` 
+            : `<div style="width:40px; height:40px; border-radius:50%; background:#ccc; display:flex; align-items:center; justify-content:center; font-weight:bold; color:#fff;">${u.usuario.charAt(0).toUpperCase()}</div>`;
+        
         tr.innerHTML = `
+            <td>${avatarHtml}</td>
             <td>${u.usuario}</td>
             <td>${u.nombre_completo || '-'}</td>
             <td>${u.rol_nombre}</td>
@@ -87,6 +92,7 @@ function editarUsuario(id) {
     document.getElementById('usr_correo').value = u.correo || '';
     document.getElementById('usr_telefono').value = u.telefono || '';
     document.getElementById('usr_rol').value = u.id_rol || '';
+    document.getElementById('usr_imagen').value = ''; // Reset file input
     
     document.getElementById('usr_password').required = false; // Optional on edit
     document.getElementById('usr_password').value = ''; 
@@ -101,23 +107,29 @@ async function guardarUsuario(e) {
     const url = isEdit ? `/usuarios/api/editar/${id}` : '/usuarios/api/crear';
     const method = isEdit ? 'PUT' : 'POST';
 
-    const payload = {
-        nombre_completo: document.getElementById('usr_nombre').value,
-        usuario: document.getElementById('usr_usuario').value,
-        correo: document.getElementById('usr_correo').value,
-        telefono: document.getElementById('usr_telefono').value,
-        id_rol: document.getElementById('usr_rol').value
-    };
+    const formData = new FormData();
+    formData.append('nombre_completo', document.getElementById('usr_nombre').value);
+    formData.append('usuario', document.getElementById('usr_usuario').value);
+    formData.append('correo', document.getElementById('usr_correo').value);
+    formData.append('telefono', document.getElementById('usr_telefono').value);
+    formData.append('id_rol', document.getElementById('usr_rol').value);
 
     if (!isEdit) {
-        payload.password = document.getElementById('usr_password').value;
+        formData.append('password', document.getElementById('usr_password').value);
+    } else {
+        const pwd = document.getElementById('usr_password').value;
+        if(pwd) formData.append('password', pwd);
+    }
+    
+    const fileInput = document.getElementById('usr_imagen');
+    if (fileInput.files.length > 0) {
+        formData.append('imagen', fileInput.files[0]);
     }
 
     try {
         const res = await fetch(url, {
             method,
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(payload)
+            body: formData
         });
         const result = await res.json();
         if (result.success) {

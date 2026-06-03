@@ -14,7 +14,7 @@ class Compra(db.Model):
     impuesto = db.Column(db.Numeric(10, 2), default=0.0)
     total = db.Column(db.Numeric(10, 2), default=0.0)
     estado = db.Column(db.Enum('completada', 'cancelada'), default='completada')
-    fecha_compra = db.Column(db.DateTime, default=datetime.utcnow)
+    fecha_compra = db.Column(db.DateTime, default=datetime.now)
 
     def to_dict(self):
         return {

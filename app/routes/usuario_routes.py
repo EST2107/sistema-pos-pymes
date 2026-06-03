@@ -1,6 +1,8 @@
-from flask import Blueprint, render_template, jsonify, request
+from flask import Blueprint, render_template, jsonify, request, current_app
 from flask_login import login_required, current_user
 from werkzeug.security import generate_password_hash
+from werkzeug.utils import secure_filename
+import os
 from app.extensions import db
 from app.models import Usuario, Rol
 from app.services.auditoria_service import registrar_auditoria
@@ -40,7 +42,17 @@ def api_roles():
 @usuario_bp.route("/api/crear", methods=["POST"])
 @login_required
 def api_crear():
-    data = request.json
+    data = request.form
+    imagen = request.files.get('imagen')
+    imagen_url = None
+    
+    if imagen and imagen.filename:
+        filename = secure_filename(imagen.filename)
+        upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', 'perfiles')
+        os.makedirs(upload_folder, exist_ok=True)
+        imagen.save(os.path.join(upload_folder, filename))
+        imagen_url = f"/static/uploads/perfiles/{filename}"
+
     try:
         nuevo = Usuario(
             id_empresa=current_user.id_empresa,
@@ -51,6 +63,7 @@ def api_crear():
             correo=data.get("correo"),
             telefono=data.get("telefono"),
             password_hash=generate_password_hash(data.get("password") or "123456"),
+            imagen_url=imagen_url,
             estado="activo"
         )
         db.session.add(nuevo)
@@ -64,17 +77,29 @@ def api_crear():
 @usuario_bp.route("/api/editar/<int:id>", methods=["PUT"])
 @login_required
 def api_editar(id):
-    data = request.json
+    data = request.form
+    imagen = request.files.get('imagen')
+    
     try:
         u = Usuario.query.get_or_404(id)
         if u.id_empresa != current_user.id_empresa:
             return jsonify({"success": False, "message": "Acceso denegado"}), 403
             
+        if imagen and imagen.filename:
+            filename = secure_filename(imagen.filename)
+            upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', 'perfiles')
+            os.makedirs(upload_folder, exist_ok=True)
+            imagen.save(os.path.join(upload_folder, filename))
+            u.imagen_url = f"/static/uploads/perfiles/{filename}"
+
         u.nombre_completo = data.get("nombre_completo", u.nombre_completo)
         u.usuario = data.get("usuario", u.usuario)
         u.correo = data.get("correo", u.correo)
         u.telefono = data.get("telefono", u.telefono)
         u.id_rol = data.get("id_rol", u.id_rol)
+        
+        if data.get("password"):
+            u.password_hash = generate_password_hash(data.get("password"))
         
         db.session.commit()
         registrar_auditoria("EDITAR USUARIO", "Usuarios", f"Usuario {u.usuario} modificado")

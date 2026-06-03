@@ -20,6 +20,7 @@
     <table id="tablaUsuarios">
         <thead>
             <tr>
+                <th>Avatar</th>
                 <th>Usuario</th>
                 <th>Nombre</th>
                 <th>Rol</th>
@@ -41,6 +42,11 @@
         
         <form id="formUsuario">
             <input type="hidden" id="usr_id">
+            
+            <div style="margin-bottom: 10px;">
+                <label>Foto de Perfil</label>
+                <input type="file" id="usr_imagen" class="form-control" accept="image/*" style="width: 100%;">
+            </div>
             
             <div style="margin-bottom: 10px;">
                 <label>Nombre Completo *</label>

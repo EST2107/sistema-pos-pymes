@@ -8,7 +8,7 @@ class Marca(db.Model):
     id_empresa = db.Column(db.Integer, nullable=True)
     nombre = db.Column(db.String(100), nullable=False)
     estado = db.Column(db.Enum("activo", "inactivo"), default="activo")
-    fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
+    fecha_creacion = db.Column(db.DateTime, default=datetime.now)
 
     def to_dict(self):
         return {

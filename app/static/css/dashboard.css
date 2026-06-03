@@ -8,6 +8,13 @@
 body {
     background: #f4f7fb;
     color: #07152f;
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+html {
+    overflow-x: hidden;
+    max-width: 100vw;
 }
 
 .app-layout {
@@ -114,11 +121,13 @@ body {
 }
 
 .topbar {
-    height: 64px;
+    min-height: 64px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 22px;
+    flex-wrap: wrap;
+    gap: 12px;
 }
 
 .topbar h1 {
@@ -301,6 +310,8 @@ th {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
 }
 
 /* Buttons */
@@ -381,7 +392,8 @@ th {
 
 .search-bar {
     position: relative;
-    width: 300px;
+    width: 100%;
+    max-width: 300px;
 }
 .search-bar input {
     padding-left: 36px;
@@ -664,6 +676,27 @@ th {
 
     .main-content {
         padding: 16px;
+        max-width: 100vw;
+        overflow-x: hidden;
+    }
+    
+    .profile {
+        padding: 8px;
+        font-size: 12px;
+    }
+    
+    .profile span:first-child {
+        display: none; /* Hide company name on mobile to save space */
+    }
+
+    .filter-group {
+        flex-direction: column;
+        width: 100%;
+        align-items: stretch;
+    }
+    
+    .search-bar {
+        max-width: 100%;
     }
 
     /* POS Móvil: Apilar carrito debajo de productos */

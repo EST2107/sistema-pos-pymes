@@ -36,6 +36,25 @@ def api_historial():
         res.append(d)
     return jsonify(res)
 
+@venta_bp.route("/api/historial/<int:id_venta>/detalles", methods=["GET"])
+@login_required
+def api_historial_detalles(id_venta):
+    venta = Venta.query.get_or_404(id_venta)
+    if venta.id_empresa != current_user.id_empresa:
+        return jsonify({"success": False, "message": "Acceso denegado"}), 403
+    
+    detalles = DetalleVenta.query.filter_by(id_venta=id_venta).all()
+    resultado = []
+    for d in detalles:
+        producto = Producto.query.get(d.id_producto)
+        resultado.append({
+            "producto": producto.nombre if producto else "Desconocido",
+            "cantidad": float(d.cantidad),
+            "precio_unitario": float(d.precio_unitario),
+            "subtotal": float(d.subtotal)
+        })
+    return jsonify(resultado)
+
 @venta_bp.route("/api/productos", methods=["GET"])
 @login_required
 def api_productos():

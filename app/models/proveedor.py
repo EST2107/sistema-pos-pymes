@@ -12,7 +12,7 @@ class Proveedor(db.Model):
     correo = db.Column(db.String(100))
     direccion = db.Column(db.String(255))
     estado = db.Column(db.Enum("activo", "inactivo"), default="activo")
-    fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
+    fecha_creacion = db.Column(db.DateTime, default=datetime.now)
 
     def to_dict(self):
         return {

@@ -11,7 +11,7 @@ class Cliente(db.Model):
     telefono = db.Column(db.String(30))
     direccion = db.Column(db.Text)
     estado = db.Column(db.Enum("activo", "inactivo"), default="activo")
-    fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
+    fecha_creacion = db.Column(db.DateTime, default=datetime.now)
 
     def to_dict(self):
         return {

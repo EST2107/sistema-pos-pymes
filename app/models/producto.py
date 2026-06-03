@@ -18,7 +18,7 @@ class Producto(db.Model):
     imagen_url = db.Column(db.String(255))
     aplica_impuesto = db.Column(db.Boolean, default=False)
     estado = db.Column(db.Enum("activo", "inactivo"), default="activo")
-    fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
+    fecha_creacion = db.Column(db.DateTime, default=datetime.now)
 
     # Relationships can be added later as needed
     def to_dict(self):

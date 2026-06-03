@@ -10,6 +10,6 @@ class Inventario(db.Model):
     stock_actual = db.Column(db.Numeric(12, 2), default=0.0)
     stock_minimo = db.Column(db.Numeric(12, 2), default=0.0)
     stock_maximo = db.Column(db.Numeric(12, 2), default=0.0)
-    fecha_actualizacion = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    fecha_actualizacion = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
 
     producto = db.relationship('Producto', lazy=True)

@@ -19,7 +19,7 @@ class Venta(db.Model):
     cambio = db.Column(db.Numeric(12, 2), default=0.0)
     estado = db.Column(db.Enum("completada", "anulada", "pendiente"), default="completada")
     metodo_pago = db.Column(db.String(50), default="Efectivo")
-    fecha_venta = db.Column(db.DateTime, default=datetime.utcnow)
+    fecha_venta = db.Column(db.DateTime, default=datetime.now)
 
     # Relaciones
     detalles = db.relationship('DetalleVenta', backref='venta', lazy=True, cascade="all, delete-orphan")
