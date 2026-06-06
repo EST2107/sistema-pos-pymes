@@ -728,6 +728,7 @@ th {
 
     /* Modales responsivos */
     .modal-content {
+    background: white;
         margin: 10px;
         max-width: calc(100% - 20px) !important;
         padding: 20px !important;
@@ -756,6 +757,7 @@ body.dark-theme .profile,
 body.dark-theme .pos-cart,
 body.dark-theme .product-card,
 body.dark-theme .modal-content {
+    background: white;
     background: #1e293b;
     border-color: #334155;
     color: #f8fafc;
