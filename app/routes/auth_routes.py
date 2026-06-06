@@ -7,8 +7,12 @@ import requests
 import os
 from app.extensions import db
 
-from app.models.usuario import Usuario
-from app.services.auth_service import verificar_password
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+from app.models.usuario import Usuario, RecuperacionPassword
+from app.services.auth_service import verificar_password, generar_password
 from app.services.auditoria_service import registrar_auditoria
 
 auth_bp = Blueprint("auth", __name__)
@@ -74,65 +78,56 @@ def forgot_password():
         
     user = Usuario.query.filter_by(correo=correo).first()
     if not user:
-        # Prevent user enumeration, just say it was sent if email not found
         return jsonify({"success": True, "message": "Si el correo existe, se ha enviado un código temporal."})
         
     # Generate 6 digit code
     codigo = ''.join(random.choices(string.digits, k=6))
-    user.codigo_temporal = codigo
-    user.expiracion_codigo = datetime.now() + timedelta(minutes=15)
+    
+    # Invalidate previous codes
+    RecuperacionPassword.query.filter_by(usuario_id=user.id_usuario, usado=False).update({"usado": True})
+    
+    # Save new code
+    nueva_recuperacion = RecuperacionPassword(
+        usuario_id=user.id_usuario,
+        codigo=codigo,
+        fecha_expiracion=datetime.now() + timedelta(minutes=15)
+    )
+    db.session.add(nueva_recuperacion)
     db.session.commit()
     
-    # Determine phone number
-    telefono = user.telefono
-    if not telefono:
-        return jsonify({"success": False, "message": "El usuario no tiene un número de teléfono registrado."})
-        
-    # Format phone number for Nicaragua
-    telefono = telefono.strip()
-    if not telefono.startswith('+'):
-        # Clean non-digits just in case
-        telefono = ''.join(filter(str.isdigit, telefono))
-        telefono = f"+505{telefono}"
+    # Enviar por Email
+    smtp_server = os.getenv("SMTP_SERVER", "smtp.gmail.com")
+    smtp_port = int(os.getenv("SMTP_PORT", 587))
+    smtp_user = os.getenv("SMTP_USER")
+    smtp_pass = os.getenv("SMTP_PASS")
     
-    # Send via Twilio WhatsApp
-    twilio_sid = os.getenv("TWILIO_ACCOUNT_SID")
-    twilio_token = os.getenv("TWILIO_AUTH_TOKEN")
-    twilio_from = os.getenv("TWILIO_WHATSAPP_NUMBER")
-    
-    if twilio_sid and twilio_token and twilio_from:
+    if smtp_user and smtp_pass:
         try:
-            url = f"https://api.twilio.com/2010-04-01/Accounts/{twilio_sid}/Messages.json"
-            payload = {
-                "From": f"whatsapp:{twilio_from}",
-                "To": f"whatsapp:{telefono}",
-                "Body": f"🔒 POS Inventario\nHola {user.nombre_completo},\nTu código de acceso temporal es: *{codigo}*\n\nEste código expirará en 15 minutos."
-            }
-            auth = (twilio_sid, twilio_token)
+            msg = MIMEMultipart()
+            msg['From'] = smtp_user
+            msg['To'] = correo
+            msg['Subject'] = "Recuperación de Contraseña - POS Inventario"
             
-            response = requests.post(url, data=payload, auth=auth)
+            body = f"Hola {user.nombre_completo},\n\nHas solicitado recuperar tu contraseña.\nTu código de verificación es: {codigo}\n\nEste código expira en 15 minutos."
+            msg.attach(MIMEText(body, 'plain'))
             
-            if response.status_code not in [200, 201]:
-                print(f"Error Twilio: {response.text}")
-                raise Exception("Twilio API Error")
-                
+            server = smtplib.SMTP(smtp_server, smtp_port)
+            server.starttls()
+            server.login(smtp_user, smtp_pass)
+            text_str = msg.as_string()
+            server.sendmail(smtp_user, correo, text_str)
+            server.quit()
         except Exception as e:
-            print(f"Error al enviar WhatsApp: {e}")
-            # Fallback a simulación
-            print("=" * 50)
-            print(f"📱 SIMULACIÓN DE WHATSAPP ENVIADO A: {telefono}")
-            print(f"Tu código de acceso temporal es: {codigo}")
-            print("=" * 50)
+            print(f"Error enviando correo: {e}")
+            print(f"SIMULACIÓN EMAIL -> {correo} | Código: {codigo}")
     else:
-        # Simular envío
+        # Simular envío si no hay configuración
         print("=" * 50)
-        print(f"📱 SIMULACIÓN DE WHATSAPP ENVIADO A: {telefono}")
-        print(f"Hola {user.nombre_completo},")
-        print(f"Tu código de acceso temporal es: {codigo}")
-        print(f"Este código expirará en 15 minutos.")
+        print(f"SIMULACION DE EMAIL ENVIADO A: {correo}")
+        print(f"Tu codigo de recuperacion es: {codigo}")
         print("=" * 50)
     
-    return jsonify({"success": True, "message": "Se ha enviado un código temporal por WhatsApp a tu número registrado."})
+    return jsonify({"success": True, "message": "Se ha enviado un código de recuperación a tu correo electrónico."})
 
 @auth_bp.route("/api/verify-code", methods=["POST"])
 def verify_code():
@@ -147,26 +142,44 @@ def verify_code():
     if not user or user.estado != "activo":
         return jsonify({"success": False, "message": "Código inválido o expirado."})
         
-    if user.codigo_temporal and user.codigo_temporal == codigo:
-        if user.expiracion_codigo and user.expiracion_codigo > datetime.now():
-            # Code is valid, log user in
-            user.codigo_temporal = None
-            user.expiracion_codigo = None
-            db.session.commit()
-            
-            login_user(user)
-            registrar_auditoria("INICIO SESION", "Auth", f"Usuario logueado con código temporal")
-            
-            rol_nombre = user.rol.nombre if user.rol else ''
-            if rol_nombre == 'Cajero':
-                redirect_url = url_for("venta.historial")
-            elif rol_nombre == 'Inventario':
-                redirect_url = url_for("producto.lista")
-            else:
-                redirect_url = url_for("dashboard.dashboard")
-                
-            return jsonify({"success": True, "redirect_url": redirect_url})
-        else:
-            return jsonify({"success": False, "message": "El código temporal ha expirado."})
-            
-    return jsonify({"success": False, "message": "Código inválido."})
+    recuperacion = RecuperacionPassword.query.filter_by(
+        usuario_id=user.id_usuario,
+        codigo=codigo,
+        usado=False
+    ).first()
+    
+    if recuperacion and recuperacion.fecha_expiracion > datetime.now():
+        return jsonify({"success": True, "message": "Código verificado."})
+        
+    return jsonify({"success": False, "message": "El código es inválido o ha expirado."})
+
+@auth_bp.route("/api/reset-password", methods=["POST"])
+def reset_password():
+    data = request.get_json()
+    correo = data.get("correo")
+    codigo = data.get("codigo")
+    nueva_password = data.get("nueva_password")
+    
+    if not correo or not codigo or not nueva_password:
+        return jsonify({"success": False, "message": "Faltan datos requeridos."})
+        
+    user = Usuario.query.filter_by(correo=correo).first()
+    if not user:
+        return jsonify({"success": False, "message": "Usuario no encontrado."})
+        
+    recuperacion = RecuperacionPassword.query.filter_by(
+        usuario_id=user.id_usuario,
+        codigo=codigo,
+        usado=False
+    ).first()
+    
+    if recuperacion and recuperacion.fecha_expiracion > datetime.now():
+        # Actualizar contraseña
+        user.password_hash = generar_password(nueva_password)
+        recuperacion.usado = True
+        db.session.commit()
+        
+        registrar_auditoria("ACTUALIZAR CONTRASENA", "Auth", f"Usuario {user.usuario} restableció su contraseña.")
+        return jsonify({"success": True, "message": "Contraseña actualizada correctamente."})
+        
+    return jsonify({"success": False, "message": "No se pudo restablecer la contraseña. El código es inválido o ha expirado."})

@@ -44,3 +44,14 @@ class Usuario(UserMixin, db.Model):
             "imagen_url": self.imagen_url,
             "estado": self.estado
         }
+
+class RecuperacionPassword(db.Model):
+    __tablename__ = "recuperacion_password"
+    
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey("usuarios.id_usuario"), nullable=False)
+    codigo = db.Column(db.String(6), nullable=False)
+    fecha_expiracion = db.Column(db.DateTime, nullable=False)
+    usado = db.Column(db.Boolean, default=False)
+    
+    usuario = db.relationship("Usuario", backref=db.backref("recuperaciones", lazy=True))
