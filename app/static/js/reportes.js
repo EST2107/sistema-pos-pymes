@@ -4,16 +4,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function cargarReportes() {
     try {
-        const [ventasRes, prodRes] = await Promise.all([
+        const [ventasRes, prodRes, stockRes] = await Promise.all([
             fetch('/reportes/api/resumen_ventas'),
-            fetch('/reportes/api/productos_top')
+            fetch('/reportes/api/productos_top'),
+            fetch('/reportes/api/stock_bajo')
         ]);
         
         const ventasData = await ventasRes.json();
         const prodData = await prodRes.json();
+        const stockData = await stockRes.json();
 
         if (ventasData.success) renderVentasChart(ventasData.data);
         if (prodData.success) renderProductosChart(prodData.data);
+        if (stockData.success) renderStockBajoTable(stockData.data);
         
     } catch (error) {
         console.error("Error al cargar reportes:", error);
@@ -93,5 +96,26 @@ function renderProductosChart(data) {
             responsive: true,
             maintainAspectRatio: false
         }
+    });
+}
+
+function renderStockBajoTable(data) {
+    const tbody = document.querySelector('#tablaStockBajo tbody');
+    if(!tbody) return;
+    tbody.innerHTML = '';
+    
+    if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 15px;">Todos los productos tienen un stock adecuado.</td></tr>';
+        return;
+    }
+    
+    data.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td style="padding: 8px; border-bottom: 1px solid #eee;">${item.producto}</td>
+            <td style="text-align: center; padding: 8px; border-bottom: 1px solid #eee; color: #e74c3c; font-weight: bold;">${item.stock_actual}</td>
+            <td style="text-align: center; padding: 8px; border-bottom: 1px solid #eee; color: #7f8c8d;">${item.stock_minimo}</td>
+        `;
+        tbody.appendChild(tr);
     });
 }

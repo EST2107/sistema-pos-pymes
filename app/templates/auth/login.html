@@ -162,25 +162,51 @@
 <!-- Modal Forgot Password -->
 <div id="forgotPasswordModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
     <div style="background: white; padding: 30px; border-radius: 12px; width: 400px; max-width: 90%; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
-        <h3 style="margin-top: 0; color: #07152f; font-size: 20px;">Recuperar Contraseña</h3>
-        <p style="color: #6a768d; font-size: 14px; margin-bottom: 20px;">
-            Ingresa tu correo electrónico registrado y te enviaremos un código temporal de acceso.
-        </p>
-        <input type="email" id="forgotEmailInput" placeholder="tu@correo.com" style="width: 100%; padding: 12px; border: 1px solid #e1e7f0; border-radius: 8px; margin-bottom: 20px; font-size: 14px; box-sizing: border-box;">
-        <div style="display: flex; gap: 10px;">
-            <button id="cancelForgotBtn" style="flex: 1; padding: 12px; background: #f4f7fb; color: #6a768d; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">Cancelar</button>
-            <button id="sendForgotBtn" style="flex: 1; padding: 12px; background: #0b5cff; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">Enviar Código</button>
+        
+        <div id="step1">
+            <h3 style="margin-top: 0; color: #07152f; font-size: 20px;">Recuperar Contraseña</h3>
+            <p style="color: #6a768d; font-size: 14px; margin-bottom: 20px;">
+                Ingresa tu correo electrónico registrado y te enviaremos un código de acceso temporal por <b>WhatsApp</b> al número registrado en tu cuenta.
+            </p>
+            <input type="email" id="forgotEmailInput" placeholder="tu@correo.com" style="width: 100%; padding: 12px; border: 1px solid #e1e7f0; border-radius: 8px; margin-bottom: 20px; font-size: 14px; box-sizing: border-box;">
+            <div style="display: flex; gap: 10px;">
+                <button id="cancelForgotBtn" style="flex: 1; padding: 12px; background: #f4f7fb; color: #6a768d; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">Cancelar</button>
+                <button id="sendForgotBtn" style="flex: 1; padding: 12px; background: #0b5cff; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">Enviar Código</button>
+            </div>
         </div>
+
+        <div id="step2" style="display: none;">
+            <h3 style="margin-top: 0; color: #07152f; font-size: 20px;">Verificar Código</h3>
+            <p style="color: #6a768d; font-size: 14px; margin-bottom: 20px;">
+                Ingresa el código de 6 dígitos que enviamos a tu WhatsApp para iniciar sesión.
+            </p>
+            <input type="text" id="verifyCodeInput" placeholder="Ej: 123456" maxlength="6" style="width: 100%; padding: 12px; border: 1px solid #e1e7f0; border-radius: 8px; margin-bottom: 20px; font-size: 18px; letter-spacing: 5px; text-align: center; font-weight: bold; box-sizing: border-box;">
+            <div style="display: flex; gap: 10px;">
+                <button id="cancelVerifyBtn" style="flex: 1; padding: 12px; background: #f4f7fb; color: #6a768d; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">Cancelar</button>
+                <button id="verifyBtn" style="flex: 1; padding: 12px; background: #00ca72; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">Entrar</button>
+            </div>
+        </div>
+
     </div>
 </div>
 
 <script>
+let currentEmail = '';
+
 document.getElementById('forgotPasswordLink').addEventListener('click', (e) => {
     e.preventDefault();
+    document.getElementById('step1').style.display = 'block';
+    document.getElementById('step2').style.display = 'none';
+    document.getElementById('forgotEmailInput').value = '';
+    document.getElementById('verifyCodeInput').value = '';
     document.getElementById('forgotPasswordModal').style.display = 'flex';
 });
 
 document.getElementById('cancelForgotBtn').addEventListener('click', () => {
+    document.getElementById('forgotPasswordModal').style.display = 'none';
+});
+
+document.getElementById('cancelVerifyBtn').addEventListener('click', () => {
     document.getElementById('forgotPasswordModal').style.display = 'none';
 });
 
@@ -202,13 +228,52 @@ document.getElementById('sendForgotBtn').addEventListener('click', async () => {
             body: JSON.stringify({ correo: email })
         });
         const result = await response.json();
-        alert(result.message);
-        document.getElementById('forgotPasswordModal').style.display = 'none';
+        
+        if (result.success) {
+            currentEmail = email;
+            document.getElementById('step1').style.display = 'none';
+            document.getElementById('step2').style.display = 'block';
+        } else {
+            alert(result.message);
+        }
     } catch (e) {
         alert("Error de conexión. Intenta más tarde.");
     } finally {
         btn.disabled = false;
         btn.textContent = "Enviar Código";
+    }
+});
+
+document.getElementById('verifyBtn').addEventListener('click', async () => {
+    const codigo = document.getElementById('verifyCodeInput').value;
+    if (!codigo || codigo.length !== 6) {
+        alert("Por favor ingresa el código de 6 dígitos.");
+        return;
+    }
+    
+    const btn = document.getElementById('verifyBtn');
+    btn.disabled = true;
+    btn.textContent = "Verificando...";
+    
+    try {
+        const response = await fetch('/api/verify-code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ correo: currentEmail, codigo: codigo })
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+            window.location.href = result.redirect_url;
+        } else {
+            alert(result.message);
+            btn.disabled = false;
+            btn.textContent = "Entrar";
+        }
+    } catch (e) {
+        alert("Error de conexión. Intenta más tarde.");
+        btn.disabled = false;
+        btn.textContent = "Entrar";
     }
 });
 </script>

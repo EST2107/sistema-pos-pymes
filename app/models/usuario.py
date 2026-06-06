@@ -17,6 +17,8 @@ class Usuario(UserMixin, db.Model):
     telefono = db.Column(db.String(30))
     password_hash = db.Column(db.String(255), nullable=False)
     imagen_url = db.Column(db.String(255))
+    imagen_datos = db.Column(db.LargeBinary)
+    imagen_mimetype = db.Column(db.String(50))
     estado = db.Column(db.Enum("activo", "inactivo", "bloqueado"), default="activo")
     ultimo_acceso = db.Column(db.DateTime)
     fecha_creacion = db.Column(db.DateTime)

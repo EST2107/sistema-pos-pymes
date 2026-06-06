@@ -3,6 +3,8 @@ from flask_login import login_user, logout_user, login_required
 from datetime import datetime, timedelta
 import random
 import string
+import requests
+import os
 from app.extensions import db
 
 from app.models.usuario import Usuario
@@ -81,12 +83,90 @@ def forgot_password():
     user.expiracion_codigo = datetime.now() + timedelta(minutes=15)
     db.session.commit()
     
-    # Simular envío de correo en la terminal
-    print("=" * 50)
-    print(f"📧 SIMULACIÓN DE CORREO ENVIADO A: {correo}")
-    print(f"Estimado/a {user.nombre_completo},")
-    print(f"Tu código de acceso temporal es: {codigo}")
-    print(f"Este código expirará en 15 minutos.")
-    print("=" * 50)
+    # Determine phone number
+    telefono = user.telefono
+    if not telefono:
+        return jsonify({"success": False, "message": "El usuario no tiene un número de teléfono registrado."})
+        
+    # Format phone number for Nicaragua
+    telefono = telefono.strip()
+    if not telefono.startswith('+'):
+        # Clean non-digits just in case
+        telefono = ''.join(filter(str.isdigit, telefono))
+        telefono = f"+505{telefono}"
     
-    return jsonify({"success": True, "message": "Si el correo existe, se ha enviado un código temporal."})
+    # Send via Twilio WhatsApp
+    twilio_sid = os.getenv("TWILIO_ACCOUNT_SID")
+    twilio_token = os.getenv("TWILIO_AUTH_TOKEN")
+    twilio_from = os.getenv("TWILIO_WHATSAPP_NUMBER")
+    
+    if twilio_sid and twilio_token and twilio_from:
+        try:
+            url = f"https://api.twilio.com/2010-04-01/Accounts/{twilio_sid}/Messages.json"
+            payload = {
+                "From": f"whatsapp:{twilio_from}",
+                "To": f"whatsapp:{telefono}",
+                "Body": f"🔒 POS Inventario\nHola {user.nombre_completo},\nTu código de acceso temporal es: *{codigo}*\n\nEste código expirará en 15 minutos."
+            }
+            auth = (twilio_sid, twilio_token)
+            
+            response = requests.post(url, data=payload, auth=auth)
+            
+            if response.status_code not in [200, 201]:
+                print(f"Error Twilio: {response.text}")
+                raise Exception("Twilio API Error")
+                
+        except Exception as e:
+            print(f"Error al enviar WhatsApp: {e}")
+            # Fallback a simulación
+            print("=" * 50)
+            print(f"📱 SIMULACIÓN DE WHATSAPP ENVIADO A: {telefono}")
+            print(f"Tu código de acceso temporal es: {codigo}")
+            print("=" * 50)
+    else:
+        # Simular envío
+        print("=" * 50)
+        print(f"📱 SIMULACIÓN DE WHATSAPP ENVIADO A: {telefono}")
+        print(f"Hola {user.nombre_completo},")
+        print(f"Tu código de acceso temporal es: {codigo}")
+        print(f"Este código expirará en 15 minutos.")
+        print("=" * 50)
+    
+    return jsonify({"success": True, "message": "Se ha enviado un código temporal por WhatsApp a tu número registrado."})
+
+@auth_bp.route("/api/verify-code", methods=["POST"])
+def verify_code():
+    data = request.get_json()
+    correo = data.get("correo")
+    codigo = data.get("codigo")
+    
+    if not correo or not codigo:
+        return jsonify({"success": False, "message": "Correo y código son requeridos."})
+        
+    user = Usuario.query.filter_by(correo=correo).first()
+    if not user or user.estado != "activo":
+        return jsonify({"success": False, "message": "Código inválido o expirado."})
+        
+    if user.codigo_temporal and user.codigo_temporal == codigo:
+        if user.expiracion_codigo and user.expiracion_codigo > datetime.now():
+            # Code is valid, log user in
+            user.codigo_temporal = None
+            user.expiracion_codigo = None
+            db.session.commit()
+            
+            login_user(user)
+            registrar_auditoria("INICIO SESION", "Auth", f"Usuario logueado con código temporal")
+            
+            rol_nombre = user.rol.nombre if user.rol else ''
+            if rol_nombre == 'Cajero':
+                redirect_url = url_for("venta.historial")
+            elif rol_nombre == 'Inventario':
+                redirect_url = url_for("producto.lista")
+            else:
+                redirect_url = url_for("dashboard.dashboard")
+                
+            return jsonify({"success": True, "redirect_url": redirect_url})
+        else:
+            return jsonify({"success": False, "message": "El código temporal ha expirado."})
+            
+    return jsonify({"success": False, "message": "Código inválido."})

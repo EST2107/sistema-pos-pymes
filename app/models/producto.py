@@ -16,6 +16,8 @@ class Producto(db.Model):
     precio_compra = db.Column(db.Numeric(12, 2))
     precio_venta = db.Column(db.Numeric(12, 2), nullable=False)
     imagen_url = db.Column(db.String(255))
+    imagen_datos = db.Column(db.LargeBinary)
+    imagen_mimetype = db.Column(db.String(50))
     aplica_impuesto = db.Column(db.Boolean, default=False)
     estado = db.Column(db.Enum("activo", "inactivo"), default="activo")
     fecha_creacion = db.Column(db.DateTime, default=datetime.now)

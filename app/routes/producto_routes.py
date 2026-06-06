@@ -4,7 +4,9 @@ from app.extensions import db
 from app.models import Producto, Categoria, Inventario, Marca, UnidadMedida
 from datetime import datetime
 import os
+import io
 from werkzeug.utils import secure_filename
+from flask import send_file
 
 from app.utils.decorators import require_roles
 
@@ -86,11 +88,12 @@ def api_crear():
     try:
         imagen_file = request.files.get('imagen')
         imagen_url = None
+        imagen_datos = None
+        imagen_mimetype = None
+        
         if imagen_file and imagen_file.filename:
-            filename = secure_filename(f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{imagen_file.filename}")
-            filepath = os.path.join(UPLOAD_FOLDER, filename)
-            imagen_file.save(filepath)
-            imagen_url = f"/static/uploads/productos/{filename}"
+            imagen_datos = imagen_file.read()
+            imagen_mimetype = imagen_file.mimetype
 
         nuevo_prod = Producto(
             id_empresa=current_user.id_empresa,
@@ -105,11 +108,16 @@ def api_crear():
             precio_venta=float(request.form.get("precio_venta", 0.0)),
             aplica_impuesto=request.form.get("aplica_impuesto") == 'true',
             imagen_url=imagen_url,
+            imagen_datos=imagen_datos,
+            imagen_mimetype=imagen_mimetype,
             estado="activo"
         )
         db.session.add(nuevo_prod)
         db.session.flush() # Get ID
         
+        if imagen_datos:
+            nuevo_prod.imagen_url = f"/productos/imagen/{nuevo_prod.id_producto}"
+            
         # Generar código automáticamente si no se proporcionó
         if not nuevo_prod.codigo or nuevo_prod.codigo.strip() == "":
             nuevo_prod.codigo = f"P{nuevo_prod.id_producto:03d}"
@@ -138,10 +146,9 @@ def api_editar(id):
 
         imagen_file = request.files.get('imagen')
         if imagen_file and imagen_file.filename:
-            filename = secure_filename(f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{imagen_file.filename}")
-            filepath = os.path.join(UPLOAD_FOLDER, filename)
-            imagen_file.save(filepath)
-            prod.imagen_url = f"/static/uploads/productos/{filename}"
+            prod.imagen_datos = imagen_file.read()
+            prod.imagen_mimetype = imagen_file.mimetype
+            prod.imagen_url = f"/productos/imagen/{prod.id_producto}"
 
         prod.codigo = request.form.get("codigo", prod.codigo)
         prod.codigo_barra = request.form.get("codigo_barra", prod.codigo_barra)
@@ -197,3 +204,14 @@ def api_entrada(id):
         db.session.rollback()
         return jsonify({"success": False, "message": str(e)}), 500
 
+@producto_bp.route("/imagen/<int:id>", methods=["GET"])
+def obtener_imagen(id):
+    prod = Producto.query.get_or_404(id)
+    if prod.imagen_datos and prod.imagen_mimetype:
+        return send_file(
+            io.BytesIO(prod.imagen_datos),
+            mimetype=prod.imagen_mimetype,
+            as_attachment=False
+        )
+    # Retornar una imagen por defecto o error 404
+    return "", 404

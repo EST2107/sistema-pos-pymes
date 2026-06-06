@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template
 from flask_login import login_required
 from app.extensions import db
-from app.models import Venta, Producto, DetalleVenta, Inventario
+from app.models import Venta, Producto, DetalleVenta, Inventario, Compra
 from datetime import datetime, timedelta
 from sqlalchemy import func, text
 
@@ -42,12 +42,18 @@ def dashboard():
         Venta.estado == 'completada'
     ).scalar() or 0.0)
 
+    # Gastos del mes (compras)
+    gastos_mes = float(db.session.query(func.sum(Compra.total)).filter(
+        func.date(Compra.fecha_compra) >= first_day_of_month,
+        Compra.estado == 'completada'
+    ).scalar() or 0.0)
+
     # Total de productos activos
     total_productos = Producto.query.filter_by(estado='activo').count()
     
-    # Productos con bajo stock (asumimos <= 5 para el demo si stock_minimo no se configuró)
+    # Productos con bajo stock
     bajo_stock = db.session.query(Producto, Inventario).join(Inventario).filter(
-        Inventario.stock_actual <= 5,
+        Inventario.stock_actual <= Inventario.stock_minimo,
         Producto.estado == 'activo'
     ).limit(5).all()
     
@@ -61,6 +67,7 @@ def dashboard():
         "dashboard/dashboard.html",
         ventas_hoy=ventas_hoy,
         ventas_mes=ventas_mes,
+        gastos_mes=gastos_mes,
         total_productos=total_productos,
         bajo_stock=bajo_stock,
         mas_vendidos=mas_vendidos_query
@@ -73,22 +80,28 @@ def api_dashboard_charts():
     hoy = datetime.now().date()
     ultimos_7_dias = [hoy - timedelta(days=i) for i in range(6, -1, -1)]
     
+    start_date = hoy - timedelta(days=6)
+    
     query_7d = text("""
-        SELECT fecha_venta, total_ventas 
-        FROM vw_resumen_ventas_dia 
-        WHERE id_empresa = :empresa 
-        ORDER BY fecha_venta DESC LIMIT 7
+        SELECT DATE(fecha_venta) as fecha, SUM(total) as total_ventas 
+        FROM ventas 
+        WHERE id_empresa = :empresa AND estado = 'completada' 
+        AND DATE(fecha_venta) >= :start_date
+        GROUP BY DATE(fecha_venta)
+        ORDER BY fecha DESC
     """)
-    res_7d = db.session.execute(query_7d, {"empresa": current_user.id_empresa}).fetchall()
+    res_7d = db.session.execute(query_7d, {"empresa": current_user.id_empresa, "start_date": start_date}).fetchall()
     
     # Mapear ventas reales por fecha
-    ventas_dict = {row[0]: float(row[1] or 0) for row in res_7d}
+    # Dependiendo del conector, row[0] puede ser string o date. Nos aseguramos de compararlo como string.
+    ventas_dict = {str(row[0]): float(row[1] or 0) for row in res_7d}
     
     ventas_7d = []
     for dia in ultimos_7_dias:
+        str_dia = str(dia)
         ventas_7d.append({
             "fecha": dia.strftime("%d/%m"),
-            "total": ventas_dict.get(dia, 0.0)
+            "total": ventas_dict.get(str_dia, 0.0)
         })
     
     # 2. Ventas por categoría
