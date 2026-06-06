@@ -346,6 +346,14 @@ th {
     background: #f4f7fb;
 }
 
+.btn-cancel {
+    background: #e0e0e0;
+    color: #333;
+}
+.btn-cancel:hover {
+    background: #d4d4d4;
+}
+
 .btn-danger {
     background: #ffe5e5;
     color: #e63946;
@@ -499,6 +507,9 @@ th {
     gap: 24px;
     height: calc(100vh - 120px);
 }
+.modal-section {
+    background: #f8f9fa;
+}
 .pos-products {
     display: flex;
     flex-direction: column;
@@ -620,6 +631,12 @@ th {
     color: #11a652;
 }
 
+/* Modals */
+.modal-content {
+    background: white;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+}
+
 /* Mobile Navigation Base Styles */
 .mobile-menu-btn {
     display: none;
@@ -728,7 +745,6 @@ th {
 
     /* Modales responsivos */
     .modal-content {
-    background: white;
         margin: 10px;
         max-width: calc(100% - 20px) !important;
         padding: 20px !important;
@@ -787,7 +803,7 @@ body.dark-theme .cart-summary {
 body.dark-theme .product-title {
     color: #f8fafc;
 }
-body.dark-theme h1, body.dark-theme h2, body.dark-theme h3 {
+body.dark-theme h1, body.dark-theme h2, body.dark-theme h3, body.dark-theme h4 {
     color: #ffffff;
 }
 body.dark-theme .mobile-menu-btn {
@@ -796,8 +812,19 @@ body.dark-theme .mobile-menu-btn {
 body.dark-theme .mobile-menu-btn:hover {
     background: #334155;
 }
-body.dark-theme .btn-secondary {
+body.dark-theme .btn-secondary,
+body.dark-theme .btn-cancel {
     background: #1e293b;
+    color: #e2e8f0;
+    border-color: #334155;
+}
+body.dark-theme .btn-cancel:hover {
+    background: #334155;
+}
+body.dark-theme .modal-section {
+    background: #0f172a;
+    border: 1px solid #334155;
+}
     color: #cbd5e1;
     border-color: #334155;
 }

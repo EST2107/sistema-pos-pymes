@@ -1,5 +1,6 @@
 from app.extensions import db
 from datetime import datetime
+from app.utils.date_utils import nicaragua_now
 
 class Proveedor(db.Model):
     __tablename__ = 'proveedores'
@@ -12,7 +13,7 @@ class Proveedor(db.Model):
     correo = db.Column(db.String(100))
     direccion = db.Column(db.String(255))
     estado = db.Column(db.Enum("activo", "inactivo"), default="activo")
-    fecha_creacion = db.Column(db.DateTime, default=datetime.now)
+    fecha_creacion = db.Column(db.DateTime, default=nicaragua_now)
 
     def to_dict(self):
         return {

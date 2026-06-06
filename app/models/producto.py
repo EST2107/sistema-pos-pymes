@@ -1,5 +1,6 @@
 from app.extensions import db
 from datetime import datetime
+from app.utils.date_utils import nicaragua_now
 
 class Producto(db.Model):
     __tablename__ = 'productos'
@@ -20,7 +21,7 @@ class Producto(db.Model):
     imagen_mimetype = db.Column(db.String(50))
     aplica_impuesto = db.Column(db.Boolean, default=False)
     estado = db.Column(db.Enum("activo", "inactivo"), default="activo")
-    fecha_creacion = db.Column(db.DateTime, default=datetime.now)
+    fecha_creacion = db.Column(db.DateTime, default=nicaragua_now)
 
     # Relationships can be added later as needed
     def to_dict(self):

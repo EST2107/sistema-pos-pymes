@@ -1,5 +1,6 @@
 from app.extensions import db
 from datetime import datetime
+from app.utils.date_utils import nicaragua_now
 
 class Auditoria(db.Model):
     __tablename__ = "audit"
@@ -9,7 +10,7 @@ class Auditoria(db.Model):
     action = db.Column(db.Enum('crear', 'update', 'delete', 'login', 'logout'), nullable=False)
     entity_affected = db.Column(db.String(100), nullable=False)
     id_reference = db.Column(db.String(64), nullable=True)
-    date = db.Column(db.DateTime, default=datetime.now)
+    date = db.Column(db.DateTime, default=nicaragua_now)
     ip = db.Column(db.String(45), nullable=True)
     device = db.Column(db.String(120), nullable=True)
 

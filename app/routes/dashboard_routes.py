@@ -2,8 +2,9 @@ from flask import Blueprint, render_template
 from flask_login import login_required
 from app.extensions import db
 from app.models import Venta, Producto, DetalleVenta, Inventario, Compra
-from datetime import datetime, timedelta
+from datetime import timedelta
 from sqlalchemy import func, text
+from app.utils.date_utils import nicaragua_now
 
 from app.utils.decorators import require_roles
 
@@ -27,7 +28,7 @@ def check_roles():
 @dashboard_bp.route("/dashboard")
 @login_required
 def dashboard():
-    today = datetime.now().date()
+    today = nicaragua_now().date()
     first_day_of_month = today.replace(day=1)
     
     # Ventas del día
@@ -77,7 +78,7 @@ def dashboard():
 @login_required
 def api_dashboard_charts():
     # 1. Ventas ultimos 7 dias (Rellenar días vacíos)
-    hoy = datetime.now().date()
+    hoy = nicaragua_now().date()
     ultimos_7_dias = [hoy - timedelta(days=i) for i in range(6, -1, -1)]
     
     start_date = hoy - timedelta(days=6)

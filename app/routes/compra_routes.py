@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from app.extensions import db
 from app.models import Compra, DetalleCompra, Producto, Proveedor, Inventario
 from datetime import datetime
+from app.utils.date_utils import nicaragua_now
 
 from app.utils.decorators import require_roles
 
@@ -26,7 +27,12 @@ def api_list():
     for c in compras:
         prov = Proveedor.query.get(c.id_proveedor) if c.id_proveedor else None
         d = c.to_dict()
-        d["proveedor_nombre"] = prov.nombre if prov else "Desconocido"
+        if c.tipo_compra == 'varios':
+            d["proveedor_nombre"] = "Gasto Vario"
+            if c.descripcion_gasto:
+                d["proveedor_nombre"] += f" ({c.descripcion_gasto})"
+        else:
+            d["proveedor_nombre"] = prov.nombre if prov else "Desconocido"
         d["id_proveedor"] = c.id_proveedor
         res.append(d)
     return jsonify(res)
@@ -38,12 +44,43 @@ def api_crear():
     id_proveedor = data.get("id_proveedor")
     items = data.get("items", [])
     
+    if id_proveedor == "varios":
+        descripcion = data.get("descripcion")
+        monto = data.get("monto")
+        if not descripcion or not monto:
+            return jsonify({"success": False, "message": "Descripción y monto son obligatorios para gastos"}), 400
+        
+        try:
+            prov_varios = Proveedor.query.filter(Proveedor.nombre.ilike('%varios%')).first()
+            id_prov_varios = prov_varios.id_proveedor if prov_varios else None
+
+            num_compra = f"GV-{nicaragua_now().strftime('%Y%m%d%H%M%S')}"
+            nueva_compra = Compra(
+                id_empresa=current_user.id_empresa,
+                id_sucursal=current_user.id_sucursal,
+                id_usuario=current_user.id_usuario,
+                id_proveedor=id_prov_varios,
+                numero_compra=num_compra,
+                subtotal=float(monto),
+                impuesto=0.0,
+                total=float(monto),
+                estado="completada",
+                tipo_compra="varios",
+                descripcion_gasto=descripcion
+            )
+            db.session.add(nueva_compra)
+            db.session.commit()
+            return jsonify({"success": True, "message": "Gasto vario registrado exitosamente"})
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"success": False, "message": str(e)}), 500
+            
     if not items:
         return jsonify({"success": False, "message": "No hay productos en la compra"}), 400
         
     try:
         subtotal_compra = 0.0
-        num_compra = f"C-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        num_compra = f"C-{nicaragua_now().strftime('%Y%m%d%H%M%S')}"
         
         nueva_compra = Compra(
             id_empresa=current_user.id_empresa,
@@ -107,11 +144,19 @@ def api_detalle(id):
             
         detalles = DetalleCompra.query.filter_by(id_compra=id).all()
         res_detalles = []
-        for d in detalles:
-            prod = Producto.query.get(d.id_producto)
-            dt = d.to_dict()
-            dt["producto_nombre"] = prod.nombre if prod else "Desconocido"
-            res_detalles.append(dt)
+        if compra.tipo_compra == 'varios':
+            res_detalles.append({
+                "producto_nombre": "Gasto Vario: " + (compra.descripcion_gasto or ""),
+                "cantidad": 1,
+                "precio_unitario": float(compra.total),
+                "subtotal": float(compra.total)
+            })
+        else:
+            for d in detalles:
+                prod = Producto.query.get(d.id_producto)
+                dt = d.to_dict()
+                dt["producto_nombre"] = prod.nombre if prod else "Desconocido"
+                res_detalles.append(dt)
             
         return jsonify({"success": True, "detalles": res_detalles})
     except Exception as e:
@@ -128,6 +173,26 @@ def api_editar(id):
     id_proveedor = data.get("id_proveedor")
     items = data.get("items", [])
     
+    if id_proveedor == "varios":
+        descripcion = data.get("descripcion")
+        monto = data.get("monto")
+        if not descripcion or not monto:
+            return jsonify({"success": False, "message": "Descripción y monto son obligatorios para gastos"}), 400
+        try:
+            prov_varios = Proveedor.query.filter(Proveedor.nombre.ilike('%varios%')).first()
+            id_prov_varios = prov_varios.id_proveedor if prov_varios else None
+
+            compra.id_proveedor = id_prov_varios
+            compra.tipo_compra = "varios"
+            compra.descripcion_gasto = descripcion
+            compra.subtotal = float(monto)
+            compra.total = float(monto)
+            db.session.commit()
+            return jsonify({"success": True, "message": "Gasto actualizado exitosamente"})
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"success": False, "message": str(e)}), 500
+
     if not items:
         return jsonify({"success": False, "message": "No hay productos en la compra"}), 400
         

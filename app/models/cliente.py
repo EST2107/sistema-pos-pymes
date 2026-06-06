@@ -1,5 +1,6 @@
 from app.extensions import db
 from datetime import datetime
+from app.utils.date_utils import nicaragua_now
 
 class Cliente(db.Model):
     __tablename__ = 'clientes'
@@ -11,7 +12,7 @@ class Cliente(db.Model):
     telefono = db.Column(db.String(30))
     direccion = db.Column(db.Text)
     estado = db.Column(db.Enum("activo", "inactivo"), default="activo")
-    fecha_creacion = db.Column(db.DateTime, default=datetime.now)
+    fecha_creacion = db.Column(db.DateTime, default=nicaragua_now)
 
     def to_dict(self):
         return {

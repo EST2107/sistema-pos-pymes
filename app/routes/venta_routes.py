@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, jsonify, request
 from flask_login import login_required, current_user
 from app.extensions import db
 from app.models import Producto, Cliente, Venta, DetalleVenta, Inventario
-from datetime import datetime
+from app.utils.date_utils import nicaragua_now
 from app.services.auditoria_service import registrar_auditoria
 
 from app.utils.decorators import require_roles
@@ -99,7 +99,7 @@ def api_cobrar():
         
         # Crear objeto Venta primero para calcular el total
         # Generar número de venta (simple timestamp o uuid, aquí usamos un prefijo simple)
-        num_venta = f"V-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        num_venta = f"V-{nicaragua_now().strftime('%Y%m%d%H%M%S')}"
         
         nueva_venta = Venta(
             id_empresa=current_user.id_empresa,

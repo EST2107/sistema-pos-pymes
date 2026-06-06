@@ -37,6 +37,27 @@ async function cargarDatosIniciales() {
             selectProv.innerHTML += `<option value="${p.id_proveedor}">${p.nombre}</option>`;
         });
         
+        selectProv.addEventListener('change', (e) => {
+            const selectedText = e.target.options[e.target.selectedIndex]?.text.toLowerCase() || '';
+            if (selectedText.includes('varios')) {
+                document.getElementById('seccion-productos').style.display = 'none';
+                document.getElementById('seccion-gasto-vario').style.display = 'block';
+                document.getElementById('compra_total').textContent = parseFloat(document.getElementById('gasto_monto').value || 0).toFixed(2);
+            } else {
+                document.getElementById('seccion-productos').style.display = 'block';
+                document.getElementById('seccion-gasto-vario').style.display = 'none';
+                renderizarItemsNuevaCompra();
+            }
+        });
+        
+        document.getElementById('gasto_monto').addEventListener('input', (e) => {
+            const selProv = document.getElementById('compra_proveedor');
+            const txt = selProv.options[selProv.selectedIndex]?.text.toLowerCase() || '';
+            if (txt.includes('varios')) {
+                document.getElementById('compra_total').textContent = parseFloat(e.target.value || 0).toFixed(2);
+            }
+        });
+        
         const selectProd = document.getElementById('compra_producto');
         productosList.forEach(p => {
             selectProd.innerHTML += `<option value="${p.id_producto}" data-costo="${p.costo || 0}">${p.nombre}</option>`;
@@ -92,6 +113,12 @@ function abrirModalCompra() {
     document.getElementById('compra_producto').value = '';
     document.getElementById('compra_cantidad').value = '1';
     document.getElementById('compra_costo').value = '0';
+    document.getElementById('gasto_descripcion').value = '';
+    document.getElementById('gasto_monto').value = '0';
+    
+    document.getElementById('seccion-productos').style.display = 'block';
+    document.getElementById('seccion-gasto-vario').style.display = 'none';
+    
     renderizarItemsNuevaCompra();
     document.getElementById('modalNuevaCompra').style.display = 'flex';
 }
@@ -109,7 +136,19 @@ async function abrirModalEditar(id) {
         if (r.success) {
             const compraObj = comprasList.find(c => c.id_compra === id);
             if (compraObj) {
-                document.getElementById('compra_proveedor').value = compraObj.id_proveedor || '';
+                if (compraObj.tipo_compra === 'varios') {
+                    const provVarios = proveedoresList.find(p => p.nombre.toLowerCase().includes('varios'));
+                    document.getElementById('compra_proveedor').value = provVarios ? provVarios.id_proveedor : '';
+                    document.getElementById('gasto_descripcion').value = compraObj.descripcion_gasto || '';
+                    document.getElementById('gasto_monto').value = compraObj.total || 0;
+                    document.getElementById('seccion-productos').style.display = 'none';
+                    document.getElementById('seccion-gasto-vario').style.display = 'block';
+                    document.getElementById('compra_total').textContent = parseFloat(compraObj.total || 0).toFixed(2);
+                } else {
+                    document.getElementById('compra_proveedor').value = compraObj.id_proveedor || '';
+                    document.getElementById('seccion-productos').style.display = 'block';
+                    document.getElementById('seccion-gasto-vario').style.display = 'none';
+                }
             }
 
             itemsNuevaCompra = r.detalles.map(d => ({
@@ -196,21 +235,38 @@ function renderizarItemsNuevaCompra() {
 
 async function registrarCompra() {
     const id_prov = document.getElementById('compra_proveedor').value;
+    const selectProv = document.getElementById('compra_proveedor');
+    const selectedText = selectProv.options[selectProv.selectedIndex]?.text.toLowerCase() || '';
     const compraId = document.getElementById('compra_id').value;
 
     if (!id_prov) {
-        showCustomAlert("Seleccione un proveedor");
-        return;
-    }
-    if (itemsNuevaCompra.length === 0) {
-        showCustomAlert("Agregue al menos un producto");
+        showCustomAlert("Seleccione un proveedor o Gasto Vario");
         return;
     }
     
-    const payload = {
-        id_proveedor: id_prov,
-        items: itemsNuevaCompra
-    };
+    let payload = {};
+    if (selectedText.includes('varios')) {
+        const desc = document.getElementById('gasto_descripcion').value;
+        const monto = parseFloat(document.getElementById('gasto_monto').value);
+        if (!desc || isNaN(monto) || monto <= 0) {
+            showCustomAlert("Ingrese una descripción y un monto mayor a 0");
+            return;
+        }
+        payload = {
+            id_proveedor: 'varios',
+            descripcion: desc,
+            monto: monto
+        };
+    } else {
+        if (itemsNuevaCompra.length === 0) {
+            showCustomAlert("Agregue al menos un producto");
+            return;
+        }
+        payload = {
+            id_proveedor: id_prov,
+            items: itemsNuevaCompra
+        };
+    }
     
     const isEdit = compraId !== '';
     const url = isEdit ? `/compras/api/editar/${compraId}` : '/compras/api/crear';

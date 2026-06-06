@@ -1,5 +1,6 @@
 from app.extensions import db
 from datetime import datetime
+from app.utils.date_utils import nicaragua_now
 
 class Venta(db.Model):
     __tablename__ = 'ventas'
@@ -19,7 +20,7 @@ class Venta(db.Model):
     cambio = db.Column(db.Numeric(12, 2), default=0.0)
     estado = db.Column(db.Enum("completada", "anulada", "pendiente"), default="completada")
     metodo_pago = db.Column(db.String(50), default="Efectivo")
-    fecha_venta = db.Column(db.DateTime, default=datetime.now)
+    fecha_venta = db.Column(db.DateTime, default=nicaragua_now)
 
     # Relaciones
     detalles = db.relationship('DetalleVenta', backref='venta', lazy=True, cascade="all, delete-orphan")

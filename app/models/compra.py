@@ -1,5 +1,6 @@
 from app.extensions import db
 from datetime import datetime
+from app.utils.date_utils import nicaragua_now
 
 class Compra(db.Model):
     __tablename__ = 'compras'
@@ -14,7 +15,9 @@ class Compra(db.Model):
     impuesto = db.Column(db.Numeric(10, 2), default=0.0)
     total = db.Column(db.Numeric(10, 2), default=0.0)
     estado = db.Column(db.Enum('completada', 'cancelada'), default='completada')
-    fecha_compra = db.Column(db.DateTime, default=datetime.now)
+    fecha_compra = db.Column(db.DateTime, default=nicaragua_now)
+    tipo_compra = db.Column(db.Enum('productos', 'varios'), default='productos')
+    descripcion_gasto = db.Column(db.String(255), nullable=True)
 
     def to_dict(self):
         return {
@@ -24,6 +27,8 @@ class Compra(db.Model):
             "impuesto": float(self.impuesto),
             "total": float(self.total),
             "estado": self.estado,
-            "fecha_compra": self.fecha_compra.strftime("%Y-%m-%d %H:%M:%S"),
-            "id_proveedor": self.id_proveedor
+            "fecha_compra": self.fecha_compra.strftime("%Y-%m-%d %H:%M:%S") if self.fecha_compra else "",
+            "id_proveedor": self.id_proveedor,
+            "tipo_compra": self.tipo_compra,
+            "descripcion_gasto": self.descripcion_gasto
         }

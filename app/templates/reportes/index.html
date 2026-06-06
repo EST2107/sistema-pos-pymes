@@ -4,7 +4,40 @@
 
 {% block content %}
 <div class="page-header" style="margin-bottom: 20px;">
-    <h2>Resumen General</h2>
+    <h2>Resumen General y Reportes</h2>
+</div>
+
+<!-- Módulo de Exportación -->
+<div class="panel" style="padding: 20px; margin-bottom: 20px;">
+    <h3 style="margin-top: 0; display: flex; align-items: center; gap: 8px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        Exportación de Reportes (CSV / Excel)
+    </h3>
+    
+    <div style="display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap;">
+        <!-- Reporte de Ventas -->
+        <div class="modal-section" style="border: 1px solid #e1e7f0; padding: 15px; border-radius: 8px; flex: 1; min-width: 300px;">
+            <h4 style="margin-top: 0; color: #0b5cff; font-size: 15px;">Reporte de Ventas y Ganancias</h4>
+            <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; margin-bottom: 4px; display: block;">Desde</label>
+                    <input type="date" id="exportFechaInicio" class="form-control" value="">
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; margin-bottom: 4px; display: block;">Hasta</label>
+                    <input type="date" id="exportFechaFin" class="form-control" value="">
+                </div>
+            </div>
+            <button onclick="descargarReporteVentas()" class="btn btn-primary" style="width: 100%; justify-content: center;">📥 Descargar Reporte de Ventas</button>
+        </div>
+
+        <!-- Reporte de Inventario -->
+        <div class="modal-section" style="border: 1px solid #e1e7f0; padding: 15px; border-radius: 8px; flex: 1; min-width: 300px; display: flex; flex-direction: column;">
+            <h4 style="margin-top: 0; color: #00ca72; font-size: 15px;">Reporte de Inventario Actual</h4>
+            <p style="font-size: 13px; margin-bottom: 15px; flex: 1;">Descarga el estado actual de tu inventario, incluyendo el stock mínimo, costos y el valor total costeado de tus productos.</p>
+            <button onclick="window.location.href='/reportes/api/exportar/inventario'" class="btn btn-success" style="width: 100%; justify-content: center;">📦 Descargar Reporte de Inventario</button>
+        </div>
+    </div>
 </div>
 
 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
@@ -49,4 +82,29 @@
 <!-- Chart.js para los gráficos -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{{ url_for('static', filename='js/reportes.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const hoy = new Date();
+        const inicio = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+        
+        // Formatear a YYYY-MM-DD
+        const formatoFecha = (fecha) => {
+            return fecha.toISOString().split('T')[0];
+        };
+        
+        document.getElementById('exportFechaInicio').value = formatoFecha(inicio);
+        document.getElementById('exportFechaFin').value = formatoFecha(hoy);
+    });
+
+    function descargarReporteVentas() {
+        const inicio = document.getElementById('exportFechaInicio').value;
+        const fin = document.getElementById('exportFechaFin').value;
+        if(!inicio || !fin) {
+            if(typeof showCustomAlert !== 'undefined') showCustomAlert("Seleccione ambas fechas");
+            else alert("Seleccione ambas fechas");
+            return;
+        }
+        window.location.href = `/reportes/api/exportar/ventas?inicio=${inicio}&fin=${fin}`;
+    }
+</script>
 {% endblock %}
