@@ -21,14 +21,17 @@
             <div style="display: flex; gap: 10px; margin-bottom: 12px;">
                 <div style="flex: 1;">
                     <label style="font-size: 12px; margin-bottom: 4px; display: block;">Desde</label>
-                    <input type="date" id="exportFechaInicio" class="form-control" value="">
+                    <input type="date" id="exportFechaInicio" class="form-control" value="" onchange="aplicarFiltroReportes()">
                 </div>
                 <div style="flex: 1;">
                     <label style="font-size: 12px; margin-bottom: 4px; display: block;">Hasta</label>
-                    <input type="date" id="exportFechaFin" class="form-control" value="">
+                    <input type="date" id="exportFechaFin" class="form-control" value="" onchange="aplicarFiltroReportes()">
                 </div>
             </div>
-            <button onclick="descargarReporteVentas()" class="btn btn-primary" style="width: 100%; justify-content: center;">📥 Descargar Reporte de Ventas</button>
+            <div style="display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
+                <button onclick="descargarReporteVentas()" class="btn btn-primary" style="flex: 1; justify-content: center; min-width: 140px;" title="Descargar en Excel/CSV">📥 Descargar CSV</button>
+                <button onclick="quitarFiltroReportes()" class="btn btn-danger" style="justify-content: center;" title="Quitar Filtro">❌</button>
+            </div>
         </div>
 
         <!-- Reporte de Inventario -->
@@ -85,11 +88,14 @@
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const hoy = new Date();
-        const inicio = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+        const inicio = new Date();
+        inicio.setDate(hoy.getDate() - 6); // Últimos 7 días por defecto
         
-        // Formatear a YYYY-MM-DD
         const formatoFecha = (fecha) => {
-            return fecha.toISOString().split('T')[0];
+            const yyyy = fecha.getFullYear();
+            const mm = String(fecha.getMonth() + 1).padStart(2, '0');
+            const dd = String(fecha.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
         };
         
         document.getElementById('exportFechaInicio').value = formatoFecha(inicio);

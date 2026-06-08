@@ -1,12 +1,24 @@
 document.addEventListener('DOMContentLoaded', () => {
     cargarChartsDashboard();
 
-    const btnFiltrar = document.getElementById('btnFiltrarDashboard');
-    if (btnFiltrar) {
-        btnFiltrar.addEventListener('click', () => {
-            const inicio = document.getElementById('filterDesde').value;
-            const fin = document.getElementById('filterHasta').value;
+    const aplicarFiltroDashboard = () => {
+        const inicio = document.getElementById('filterDesde').value;
+        const fin = document.getElementById('filterHasta').value;
+        if (inicio && fin) {
             cargarChartsDashboard(inicio, fin);
+        }
+    };
+
+    const inputDesde = document.getElementById('filterDesde');
+    const inputHasta = document.getElementById('filterHasta');
+    if (inputDesde) inputDesde.addEventListener('change', aplicarFiltroDashboard);
+    if (inputHasta) inputHasta.addEventListener('change', aplicarFiltroDashboard);
+    const btnQuitarFiltro = document.getElementById('btnQuitarFiltroDashboard');
+    if (btnQuitarFiltro) {
+        btnQuitarFiltro.addEventListener('click', () => {
+            document.getElementById('filterDesde').value = '';
+            document.getElementById('filterHasta').value = '';
+            cargarChartsDashboard(); // Carga por defecto (últimos 7 días)
         });
     }
 });

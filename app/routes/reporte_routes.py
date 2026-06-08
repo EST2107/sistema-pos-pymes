@@ -25,29 +25,40 @@ def index():
 @login_required
 def api_resumen_ventas():
     try:
-        hoy = nicaragua_now().date()
-        start_date = hoy - timedelta(days=6)
+        inicio = request.args.get('inicio')
+        fin = request.args.get('fin')
         
-        query = text("""
+        if inicio and fin:
+            start_date = datetime.strptime(inicio, '%Y-%m-%d').date()
+            end_date = datetime.strptime(fin, '%Y-%m-%d').date()
+            dias_diff = (end_date - start_date).days
+            limit_clause = "" # If date range is given, don't limit by 7
+        else:
+            hoy = nicaragua_now().date()
+            start_date = hoy - timedelta(days=6)
+            end_date = hoy
+            limit_clause = "LIMIT 7"
+            
+        query = text(f"""
             SELECT DATE(fecha_venta) as fecha, SUM(total) as total_ventas
             FROM ventas
             WHERE id_empresa = :empresa AND estado = 'completada'
-            AND DATE(fecha_venta) >= :start_date
+            AND DATE(fecha_venta) >= :start_date AND DATE(fecha_venta) <= :end_date
             GROUP BY DATE(fecha_venta)
             ORDER BY fecha DESC
-            LIMIT 7
+            {limit_clause}
         """)
-        result = db.session.execute(query, {"empresa": current_user.id_empresa, "start_date": start_date}).fetchall()
+        result = db.session.execute(query, {"empresa": current_user.id_empresa, "start_date": start_date, "end_date": end_date}).fetchall()
         
         # Gastos
         query_gastos = text("""
             SELECT DATE(fecha_compra), SUM(total)
             FROM compras
             WHERE id_empresa = :empresa AND estado = 'completada'
-            AND DATE(fecha_compra) >= :start_date
+            AND DATE(fecha_compra) >= :start_date AND DATE(fecha_compra) <= :end_date
             GROUP BY DATE(fecha_compra)
         """)
-        gastos_res = db.session.execute(query_gastos, {"empresa": current_user.id_empresa, "start_date": start_date}).fetchall()
+        gastos_res = db.session.execute(query_gastos, {"empresa": current_user.id_empresa, "start_date": start_date, "end_date": end_date}).fetchall()
         gastos_dict = {str(row[0]): float(row[1] or 0) for row in gastos_res}
 
         datos = []
@@ -70,18 +81,29 @@ def api_resumen_ventas():
 @login_required
 def api_productos_top():
     try:
-        # Consultar productos más vendidos de todos los tiempos o del mes (acá histórico)
-        query = text("""
+        inicio = request.args.get('inicio')
+        fin = request.args.get('fin')
+        
+        date_filter = ""
+        params = {"empresa": current_user.id_empresa}
+        if inicio and fin:
+            date_filter = "AND DATE(v.fecha_venta) >= :inicio AND DATE(v.fecha_venta) <= :fin"
+            params["inicio"] = inicio
+            params["fin"] = fin
+
+        # Consultar productos más vendidos
+        query = text(f"""
             SELECT p.nombre, SUM(dv.cantidad) as cantidad, SUM(dv.subtotal) as ingresos
             FROM detalle_ventas dv
             JOIN productos p ON dv.id_producto = p.id_producto
             JOIN ventas v ON dv.id_venta = v.id_venta
             WHERE v.id_empresa = :empresa AND v.estado = 'completada'
+            {date_filter}
             GROUP BY p.id_producto
             ORDER BY cantidad DESC
             LIMIT 5
         """)
-        result = db.session.execute(query, {"empresa": current_user.id_empresa}).fetchall()
+        result = db.session.execute(query, params).fetchall()
         
         datos = []
         for row in result:

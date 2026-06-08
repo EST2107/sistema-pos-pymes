@@ -2,26 +2,66 @@ document.addEventListener('DOMContentLoaded', () => {
     cargarReportes();
 });
 
-async function cargarReportes() {
+async function cargarReportes(inicio = '', fin = '') {
     try {
+        let qs = '';
+        if (inicio && fin) {
+            qs = `?inicio=${inicio}&fin=${fin}`;
+        }
+        
         const [ventasRes, prodRes, stockRes] = await Promise.all([
-            fetch('/reportes/api/resumen_ventas'),
-            fetch('/reportes/api/productos_top'),
-            fetch('/reportes/api/stock_bajo')
+            fetch('/reportes/api/resumen_ventas' + qs),
+            fetch('/reportes/api/productos_top' + qs),
+            fetch('/reportes/api/stock_bajo') // Stock no depende de fechas, es actual
         ]);
         
         const ventasData = await ventasRes.json();
         const prodData = await prodRes.json();
         const stockData = await stockRes.json();
 
-        if (ventasData.success) renderVentasChart(ventasData.data);
-        if (prodData.success) renderProductosChart(prodData.data);
+        if (ventasData.success) {
+            if (window.ventasChartInst) window.ventasChartInst.destroy();
+            renderVentasChart(ventasData.data);
+        }
+        if (prodData.success) {
+            if (window.productosChartInst) window.productosChartInst.destroy();
+            renderProductosChart(prodData.data);
+        }
         if (stockData.success) renderStockBajoTable(stockData.data);
         
     } catch (error) {
         console.error("Error al cargar reportes:", error);
     }
 }
+
+window.aplicarFiltroReportes = function() {
+    const inicio = document.getElementById('exportFechaInicio').value;
+    const fin = document.getElementById('exportFechaFin').value;
+    if(!inicio || !fin) {
+        if(typeof showCustomAlert !== 'undefined') showCustomAlert("Seleccione ambas fechas");
+        else alert("Seleccione ambas fechas");
+        return;
+    }
+    cargarReportes(inicio, fin);
+};
+
+window.quitarFiltroReportes = function() {
+    const hoy = new Date();
+    const inicioDate = new Date();
+    inicioDate.setDate(hoy.getDate() - 6);
+    
+    const formatoFecha = (fecha) => {
+        const yyyy = fecha.getFullYear();
+        const mm = String(fecha.getMonth() + 1).padStart(2, '0');
+        const dd = String(fecha.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    };
+    
+    document.getElementById('exportFechaInicio').value = formatoFecha(inicioDate);
+    document.getElementById('exportFechaFin').value = formatoFecha(hoy);
+    
+    cargarReportes(); // Sin parámetros carga default (últimos 7 días / histórico)
+};
 
 function renderVentasChart(data) {
     const ctx = document.getElementById('ventasChart').getContext('2d');
@@ -31,7 +71,7 @@ function renderVentasChart(data) {
     const ganancias = data.map(d => d.ganancia);
     const gastos = data.map(d => d.gastos || 0);
 
-    new Chart(ctx, {
+    window.ventasChartInst = new Chart(ctx, {
         type: 'line',
         data: {
             labels: labels,
@@ -81,7 +121,7 @@ function renderProductosChart(data) {
     const labels = data.map(d => d.producto);
     const cantidades = data.map(d => d.cantidad);
 
-    new Chart(ctx, {
+    window.productosChartInst = new Chart(ctx, {
         type: 'doughnut',
         data: {
             labels: labels,
