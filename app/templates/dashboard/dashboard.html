@@ -38,10 +38,22 @@
 
 </div>
 
+<div class="dashboard-filters">
+    <div>
+        <label>Desde:</label>
+        <input type="date" id="filterDesde" class="form-control" style="width: auto; display: inline-block;">
+    </div>
+    <div>
+        <label>Hasta:</label>
+        <input type="date" id="filterHasta" class="form-control" style="width: auto; display: inline-block;">
+    </div>
+    <button id="btnFiltrarDashboard" class="btn btn-primary">Aplicar Filtro</button>
+</div>
+
 <div class="dashboard-grid">
 
     <div class="panel large-panel">
-        <h3>Ventas últimos 7 días</h3>
+        <h3>Tendencia de ventas</h3>
         <div style="height: 250px; width: 100%;">
             <canvas id="ventasDashboardChart"></canvas>
         </div>
@@ -88,9 +100,9 @@
     </div>
 
     <div class="panel">
-        <h3>Ventas por categoría</h3>
-        <div style="height: 250px; width: 100%;">
-            <canvas id="categoriasChart"></canvas>
+        <h3>Top 5 Productos Más Vendidos</h3>
+        <div style="height: 250px; width: 100%; display: flex; justify-content: center;">
+            <canvas id="productosDonutChart"></canvas>
         </div>
     </div>
 

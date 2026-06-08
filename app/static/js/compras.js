@@ -2,6 +2,8 @@ let comprasList = [];
 let proveedoresList = [];
 let productosList = [];
 let itemsNuevaCompra = [];
+let choiceProveedor = null;
+let choiceProducto = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     cargarDatosIniciales();
@@ -58,6 +60,17 @@ async function cargarDatosIniciales() {
             }
         });
         
+        if (window.Choices) {
+            choiceProveedor = new Choices(selectProv, {
+                searchEnabled: true,
+                itemSelectText: '',
+                noResultsText: 'No se encontraron proveedores',
+                noChoicesText: 'No hay opciones',
+                placeholderValue: 'Seleccione un Proveedor...'
+            });
+        }
+        
+        
         const selectProd = document.getElementById('compra_producto');
         productosList.forEach(p => {
             selectProd.innerHTML += `<option value="${p.id_producto}" data-costo="${p.costo || 0}">${p.nombre}</option>`;
@@ -66,10 +79,20 @@ async function cargarDatosIniciales() {
         // Autocompletar costo al elegir producto
         selectProd.addEventListener('change', (e) => {
             const opt = e.target.options[e.target.selectedIndex];
-            if (opt.value) {
+            if (opt && opt.value) {
                 document.getElementById('compra_costo').value = parseFloat(opt.dataset.costo || 0).toFixed(2);
             }
         });
+        
+        if (window.Choices) {
+            choiceProducto = new Choices(selectProd, {
+                searchEnabled: true,
+                itemSelectText: '',
+                noResultsText: 'No se encontraron productos',
+                noChoicesText: 'No hay opciones',
+                placeholderValue: 'Seleccione un Producto...'
+            });
+        }
         
         renderizarTablaCompras();
     } catch (e) {
@@ -109,8 +132,13 @@ function abrirModalCompra() {
     document.getElementById('compra_id').value = '';
     document.getElementById('tituloModalCompra').textContent = 'Registrar Nueva Compra';
     document.getElementById('btnGuardarCompra').textContent = 'Registrar Compra';
-    document.getElementById('compra_proveedor').value = '';
-    document.getElementById('compra_producto').value = '';
+    
+    if (choiceProveedor) choiceProveedor.setChoiceByValue('');
+    else document.getElementById('compra_proveedor').value = '';
+    
+    if (choiceProducto) choiceProducto.setChoiceByValue('');
+    else document.getElementById('compra_producto').value = '';
+    
     document.getElementById('compra_cantidad').value = '1';
     document.getElementById('compra_costo').value = '0';
     document.getElementById('gasto_descripcion').value = '';
@@ -138,14 +166,18 @@ async function abrirModalEditar(id) {
             if (compraObj) {
                 if (compraObj.tipo_compra === 'varios') {
                     const provVarios = proveedoresList.find(p => p.nombre.toLowerCase().includes('varios'));
-                    document.getElementById('compra_proveedor').value = provVarios ? provVarios.id_proveedor : '';
+                    if (choiceProveedor) choiceProveedor.setChoiceByValue(provVarios ? provVarios.id_proveedor.toString() : '');
+                    else document.getElementById('compra_proveedor').value = provVarios ? provVarios.id_proveedor : '';
+                    
                     document.getElementById('gasto_descripcion').value = compraObj.descripcion_gasto || '';
                     document.getElementById('gasto_monto').value = compraObj.total || 0;
                     document.getElementById('seccion-productos').style.display = 'none';
                     document.getElementById('seccion-gasto-vario').style.display = 'block';
                     document.getElementById('compra_total').textContent = parseFloat(compraObj.total || 0).toFixed(2);
                 } else {
-                    document.getElementById('compra_proveedor').value = compraObj.id_proveedor || '';
+                    if (choiceProveedor) choiceProveedor.setChoiceByValue(compraObj.id_proveedor ? compraObj.id_proveedor.toString() : '');
+                    else document.getElementById('compra_proveedor').value = compraObj.id_proveedor || '';
+                    
                     document.getElementById('seccion-productos').style.display = 'block';
                     document.getElementById('seccion-gasto-vario').style.display = 'none';
                 }
@@ -200,7 +232,9 @@ function agregarItem() {
         });
     }
     
-    document.getElementById('compra_producto').value = '';
+    if (choiceProducto) choiceProducto.setChoiceByValue('');
+    else document.getElementById('compra_producto').value = '';
+    
     document.getElementById('compra_cantidad').value = '1';
     document.getElementById('compra_costo').value = '0';
     renderizarItemsNuevaCompra();

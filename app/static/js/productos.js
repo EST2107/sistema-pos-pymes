@@ -304,20 +304,20 @@ async function guardarNuevaMarca(e) {
 // --- ELIMINAR ---
 
 async function eliminarProducto(id) {
-    if (!confirm('¿Está seguro de eliminar (desactivar) este producto?')) return;
-    
-    try {
-        const response = await fetch(`/productos/api/eliminar/${id}`, {
-            method: 'DELETE'
-        });
-        const result = await response.json();
-        if (result.success) {
-            cargarProductos();
-        } else {
-            showCustomAlert('Error al eliminar: ' + result.message);
+    showCustomConfirm('¿Está seguro de eliminar (desactivar) este producto?', async () => {
+        try {
+            const response = await fetch(`/productos/api/eliminar/${id}`, {
+                method: 'DELETE'
+            });
+            const result = await response.json();
+            if (result.success) {
+                cargarProductos();
+            } else {
+                showCustomAlert('Error al eliminar: ' + result.message);
+            }
+        } catch (error) {
+            console.error("Error al eliminar:", error);
+            showCustomAlert('Ocurrió un error en el servidor');
         }
-    } catch (error) {
-        console.error("Error al eliminar:", error);
-        showCustomAlert('Ocurrió un error en el servidor');
-    }
+    });
 }

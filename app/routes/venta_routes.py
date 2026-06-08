@@ -58,8 +58,8 @@ def api_historial_detalles(id_venta):
 @venta_bp.route("/api/productos", methods=["GET"])
 @login_required
 def api_productos():
-    # Obtener productos activos
-    productos = Producto.query.filter_by(estado="activo").all()
+    # Obtener productos activos de la empresa actual
+    productos = Producto.query.filter_by(estado="activo", id_empresa=current_user.id_empresa).all()
     resultado = []
     for p in productos:
         # Obtener inventario para este producto (asumimos que hay un registro o sumamos si hay por sucursal)
@@ -78,7 +78,7 @@ def api_productos():
 @venta_bp.route("/api/clientes", methods=["GET"])
 @login_required
 def api_clientes():
-    clientes = Cliente.query.filter_by(estado="activo").all()
+    clientes = Cliente.query.filter_by(estado="activo", id_empresa=current_user.id_empresa).all()
     return jsonify([c.to_dict() for c in clientes])
 
 @venta_bp.route("/api/cobrar", methods=["POST"])
@@ -160,6 +160,9 @@ def api_cobrar():
 @login_required
 def ver_factura(id_venta):
     venta = Venta.query.get_or_404(id_venta)
+    if venta.id_empresa != current_user.id_empresa:
+        return "Acceso denegado", 403
+        
     # Get details with products
     detalles = DetalleVenta.query.filter_by(id_venta=id_venta).all()
     

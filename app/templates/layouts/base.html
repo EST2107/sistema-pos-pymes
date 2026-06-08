@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>POS Inventario</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}?v=8">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
     <script>
         if (localStorage.getItem('theme') === 'dark') {
             document.documentElement.classList.add('dark-theme');
@@ -42,10 +43,10 @@
                 <div style="position: relative; cursor: pointer;" id="notif-container">
                     <span id="notif-bell" style="font-size: 20px;">🔔</span>
                     <span id="notif-badge" style="display: none; position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; font-size: 10px; padding: 2px 5px; font-weight: bold;">0</span>
-                    <div id="notif-dropdown" style="display: none; position: absolute; right: 0; top: 30px; width: 300px;  border: 1px solid #e1e7f0; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); z-index: 1000; max-height: 400px; overflow-y: auto;">
-                        <div style="padding: 10px 15px; border-bottom: 1px solid #eee; font-weight: bold; color: #333;">Notificaciones</div>
+                    <div id="notif-dropdown" class="notif-dropdown" style="display: none; position: absolute; right: 0; top: 30px; width: 300px; border-radius: 8px; z-index: 1000; max-height: 400px; overflow-y: auto;">
+                        <div class="notif-header">Notificaciones</div>
                         <div id="notif-list">
-                            <div style="padding: 15px; text-align: center; color: #666; font-size: 13px;">Sin notificaciones nuevas.</div>
+                            <div class="notif-empty">Sin notificaciones nuevas.</div>
                         </div>
                     </div>
                 </div>
@@ -80,6 +81,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     function toggleSidebar() {
         sidebar.classList.toggle('active');
         overlay.classList.toggle('active');
+        document.body.classList.toggle('sidebar-open');
         document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
     }
 
@@ -110,11 +112,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             list.innerHTML = '';
             notifs.forEach(n => {
                 const item = document.createElement('div');
-                item.style.cssText = "padding: 12px 15px; border-bottom: 1px solid #f5f5f5; font-size: 13px; color: #333;";
+                item.className = 'notif-item';
                 item.innerHTML = `
-                    <div style="color: #e63946; font-weight: bold; margin-bottom: 4px;">⚠️ Stock Bajo</div>
+                    <div class="notif-item-title">⚠️ Stock Bajo</div>
                     <div>${n.mensaje}</div>
-                    <div style="font-size: 11px; color: #999; margin-top: 4px;">${n.fecha}</div>
+                    <div class="notif-item-date">${n.fecha}</div>
                 `;
                 list.appendChild(item);
             });
@@ -149,16 +151,60 @@ window.showCustomAlert = function(message, isError = true) {
 window.closeCustomAlert = function() {
     document.getElementById('globalAlertModal').style.display = 'none';
 };
+
+window.showCustomConfirm = function(message, onConfirm) {
+    const modal = document.getElementById('globalConfirmModal');
+    document.getElementById('globalConfirmMessage').textContent = message;
+    
+    const confirmBtn = document.getElementById('globalConfirmBtn');
+    // Clear previous event listeners by cloning
+    const newConfirmBtn = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+    
+    newConfirmBtn.addEventListener('click', () => {
+        document.getElementById('globalConfirmModal').style.display = 'none';
+        if (onConfirm) onConfirm();
+    });
+    
+    modal.style.display = 'flex';
+};
+
+window.closeCustomConfirm = function() {
+    document.getElementById('globalConfirmModal').style.display = 'none';
+};
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 
 <!-- Global Alert Modal HTML -->
 <div id="globalAlertModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.55); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(3px);">
-    <div class="modal-content" style="border-radius: 20px; padding: 40px 36px; width: 360px; max-width: 92%; text-align: center; animation: popIn 0.35s cubic-bezier(.175,.885,.32,1.275);">
+    <div class="modal-content" style="border-radius: 20px; padding: 40px 36px; width: 360px; max-width: 92%; text-align: center; animation: popIn 0.35s cubic-bezier(.175,.885,.32,1.275); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
         <div id="globalAlertIcon" style="width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
         </div>
         <h2 id="globalAlertTitle" style="margin: 0 0 10px; font-size: 22px; font-weight: 700;">Atención</h2>
         <p id="globalAlertMessage" style="margin: 0 0 24px; font-size: 15px;"></p>
-        <button onclick="closeCustomAlert()" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; border-radius: 10px; font-size: 15px;">Aceptar</button>
+        <button onclick="closeCustomAlert()" style="background: #0b5cff; color: white; border: none; padding: 12px 30px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 16px; width: 100%; transition: background 0.2s;">
+            Aceptar
+        </button>
+    </div>
+</div>
+
+<!-- Global Confirm Modal HTML -->
+<div id="globalConfirmModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.55); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(3px);">
+    <div class="modal-content" style="border-radius: 20px; padding: 40px 36px; width: 360px; max-width: 92%; text-align: center; animation: popIn 0.35s cubic-bezier(.175,.885,.32,1.275); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <div style="width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; background: #fff4e5; color: #ffb703; font-size: 40px;">
+            ⚠️
+        </div>
+        <h2 style="margin: 0 0 10px; font-size: 22px; font-weight: 700;">Confirmar</h2>
+        <p id="globalConfirmMessage" style="margin: 0 0 24px; font-size: 15px; color: #6a768d; line-height: 1.5;"></p>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="closeCustomConfirm()" class="btn btn-secondary" style="flex: 1; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 16px;">
+                Cancelar
+            </button>
+            <button id="globalConfirmBtn" class="btn" style="flex: 1; background: #e63946; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 16px;">
+                Aceptar
+            </button>
+        </div>
     </div>
 </div>
 

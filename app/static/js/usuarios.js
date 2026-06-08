@@ -153,19 +153,20 @@ async function guardarUsuario(e) {
 }
 
 async function eliminarUsuario(id) {
-    if (!confirm('¿Está seguro de eliminar este usuario?')) return;
-    try {
-        const res = await fetch(`/usuarios/api/eliminar/${id}`, { method: 'DELETE' });
-        const result = await res.json();
-        if (result.success) {
-            const uRes = await fetch('/usuarios/api/list');
-            usuariosList = await uRes.json();
-            renderizarTabla();
-        } else {
-            showCustomAlert('Error: ' + result.message);
+    showCustomConfirm('¿Está seguro de eliminar este usuario?', async () => {
+        try {
+            const res = await fetch(`/usuarios/api/eliminar/${id}`, { method: 'DELETE' });
+            const result = await res.json();
+            if (result.success) {
+                const uRes = await fetch('/usuarios/api/list');
+                usuariosList = await uRes.json();
+                renderizarTabla();
+            } else {
+                showCustomAlert('Error: ' + result.message);
+            }
+        } catch (error) {
+            console.error(error);
+            showCustomAlert('Error en el servidor');
         }
-    } catch (error) {
-        console.error(error);
-        showCustomAlert('Error en el servidor');
-    }
+    });
 }

@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, jsonify, request
 from flask_login import login_required, current_user
 from app.extensions import db
 from app.models import Proveedor
+from app.services.auditoria_service import registrar_auditoria
 
 from app.utils.decorators import require_roles
 
@@ -38,6 +39,7 @@ def api_crear():
         )
         db.session.add(nuevo)
         db.session.commit()
+        registrar_auditoria("CREAR PROVEEDOR", "Proveedores", f"Proveedor {nuevo.nombre} registrado")
         return jsonify({"success": True})
     except Exception as e:
         db.session.rollback()
@@ -59,6 +61,7 @@ def api_editar(id):
         p.direccion = data.get("direccion", p.direccion)
         
         db.session.commit()
+        registrar_auditoria("EDITAR PROVEEDOR", "Proveedores", f"Proveedor {p.nombre} modificado")
         return jsonify({"success": True})
     except Exception as e:
         db.session.rollback()
@@ -74,6 +77,7 @@ def api_eliminar(id):
             
         p.estado = "inactivo"
         db.session.commit()
+        registrar_auditoria("ELIMINAR PROVEEDOR", "Proveedores", f"Proveedor {p.nombre} eliminado")
         return jsonify({"success": True})
     except Exception as e:
         db.session.rollback()

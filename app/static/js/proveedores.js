@@ -110,17 +110,18 @@ async function guardarProveedor(e) {
 }
 
 async function eliminarProveedor(id) {
-    if (!confirm('¿Está seguro de eliminar este proveedor?')) return;
-    try {
-        const res = await fetch(`/proveedores/api/eliminar/${id}`, { method: 'DELETE' });
-        const result = await res.json();
-        if (result.success) {
-            cargarProveedores();
-        } else {
-            showCustomAlert('Error: ' + result.message);
+    showCustomConfirm('¿Está seguro de eliminar este proveedor?', async () => {
+        try {
+            const res = await fetch(`/proveedores/api/eliminar/${id}`, { method: 'DELETE' });
+            const result = await res.json();
+            if (result.success) {
+                cargarProveedores();
+            } else {
+                showCustomAlert('Error: ' + result.message);
+            }
+        } catch (error) {
+            console.error(error);
+            showCustomAlert('Error en el servidor');
         }
-    } catch (error) {
-        console.error(error);
-        showCustomAlert('Error en el servidor');
-    }
+    });
 }

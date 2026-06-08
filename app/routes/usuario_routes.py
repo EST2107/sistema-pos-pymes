@@ -56,14 +56,30 @@ def api_crear():
         imagen_mimetype = imagen.mimetype
 
     try:
+        usuario = data.get("usuario")
+        correo = data.get("correo")
+        telefono = data.get("telefono", "")
+
+        # Validar duplicados
+        if Usuario.query.filter_by(usuario=usuario).first():
+            return jsonify({"success": False, "message": f"El usuario '{usuario}' ya está en uso."}), 400
+        if Usuario.query.filter_by(correo=correo).first():
+            return jsonify({"success": False, "message": f"El correo '{correo}' ya está en uso."}), 400
+            
+        # Limpiar y validar telefono (solo numeros, sin guiones)
+        if telefono:
+            telefono = telefono.replace("-", "").strip()
+            if not telefono.isdigit():
+                return jsonify({"success": False, "message": "El teléfono solo debe contener números."}), 400
+
         nuevo = Usuario(
             id_empresa=current_user.id_empresa,
             id_sucursal=current_user.id_sucursal,
             id_rol=data.get("id_rol"),
-            usuario=data.get("usuario"),
+            usuario=usuario,
             nombre_completo=data.get("nombre_completo"),
-            correo=data.get("correo"),
-            telefono=data.get("telefono"),
+            correo=correo,
+            telefono=telefono,
             password_hash=generate_password_hash(data.get("password") or "123456"),
             imagen_url=imagen_url,
             imagen_datos=imagen_datos,
@@ -102,10 +118,26 @@ def api_editar(id):
             u.imagen_mimetype = imagen.mimetype
             u.imagen_url = f"/usuarios/imagen/{u.id_usuario}"
 
+        usuario = data.get("usuario", u.usuario)
+        correo = data.get("correo", u.correo)
+        telefono = data.get("telefono", u.telefono)
+
+        # Validar duplicados (excluyendo el actual)
+        if Usuario.query.filter(Usuario.usuario == usuario, Usuario.id_usuario != id).first():
+            return jsonify({"success": False, "message": f"El usuario '{usuario}' ya está en uso."}), 400
+        if Usuario.query.filter(Usuario.correo == correo, Usuario.id_usuario != id).first():
+            return jsonify({"success": False, "message": f"El correo '{correo}' ya está en uso."}), 400
+            
+        # Limpiar y validar telefono
+        if telefono:
+            telefono = telefono.replace("-", "").strip()
+            if not telefono.isdigit():
+                return jsonify({"success": False, "message": "El teléfono solo debe contener números."}), 400
+
         u.nombre_completo = data.get("nombre_completo", u.nombre_completo)
-        u.usuario = data.get("usuario", u.usuario)
-        u.correo = data.get("correo", u.correo)
-        u.telefono = data.get("telefono", u.telefono)
+        u.usuario = usuario
+        u.correo = correo
+        u.telefono = telefono
         u.id_rol = data.get("id_rol", u.id_rol)
         
         if data.get("password"):

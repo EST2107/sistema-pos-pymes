@@ -77,55 +77,86 @@ def dashboard():
 @dashboard_bp.route("/api/dashboard_charts")
 @login_required
 def api_dashboard_charts():
-    # 1. Ventas ultimos 7 dias (Rellenar días vacíos)
+    from flask import request
+    from datetime import datetime
+    
+    inicio = request.args.get('inicio')
+    fin = request.args.get('fin')
+    
     hoy = nicaragua_now().date()
-    ultimos_7_dias = [hoy - timedelta(days=i) for i in range(6, -1, -1)]
     
-    start_date = hoy - timedelta(days=6)
+    params_7d = {"empresa": current_user.id_empresa}
     
-    query_7d = text("""
+    if inicio and fin:
+        start_date = datetime.strptime(inicio, "%Y-%m-%d").date()
+        end_date = datetime.strptime(fin, "%Y-%m-%d").date()
+        
+        # Limitar la diferencia a 31 días máximo para evitar gráficos enormes
+        dias_diff = (end_date - start_date).days
+        if dias_diff > 31:
+            end_date = start_date + timedelta(days=31)
+            dias_diff = 31
+            
+        rango_dias = [start_date + timedelta(days=i) for i in range(dias_diff + 1)]
+        params_7d["start_date"] = start_date
+        params_7d["end_date"] = end_date
+        filtro_fecha_tendencia = "AND DATE(fecha_venta) >= :start_date AND DATE(fecha_venta) <= :end_date"
+    else:
+        start_date = hoy - timedelta(days=6)
+        rango_dias = [hoy - timedelta(days=i) for i in range(6, -1, -1)]
+        params_7d["start_date"] = start_date
+        filtro_fecha_tendencia = "AND DATE(fecha_venta) >= :start_date"
+    
+    query_7d = text(f"""
         SELECT DATE(fecha_venta) as fecha, SUM(total) as total_ventas 
         FROM ventas 
         WHERE id_empresa = :empresa AND estado = 'completada' 
-        AND DATE(fecha_venta) >= :start_date
+        {filtro_fecha_tendencia}
         GROUP BY DATE(fecha_venta)
-        ORDER BY fecha DESC
+        ORDER BY fecha ASC
     """)
-    res_7d = db.session.execute(query_7d, {"empresa": current_user.id_empresa, "start_date": start_date}).fetchall()
+    res_7d = db.session.execute(query_7d, params_7d).fetchall()
     
     # Mapear ventas reales por fecha
-    # Dependiendo del conector, row[0] puede ser string o date. Nos aseguramos de compararlo como string.
     ventas_dict = {str(row[0]): float(row[1] or 0) for row in res_7d}
     
     ventas_7d = []
-    for dia in ultimos_7_dias:
+    for dia in rango_dias:
         str_dia = str(dia)
         ventas_7d.append({
             "fecha": dia.strftime("%d/%m"),
             "total": ventas_dict.get(str_dia, 0.0)
         })
     
-    # 2. Ventas por categoría
-    query_cat = text("""
-        SELECT c.nombre, sum(dv.subtotal) as total
+    # 2. Top 5 Productos (Donut Chart)
+    filtro_fecha_prod = ""
+    params_prod = {"empresa": current_user.id_empresa}
+    if inicio and fin:
+        filtro_fecha_prod = "AND DATE(v.fecha_venta) >= :inicio AND DATE(v.fecha_venta) <= :fin"
+        params_prod["inicio"] = start_date
+        params_prod["fin"] = end_date
+        
+    query_prod = text(f"""
+        SELECT p.nombre, sum(dv.subtotal) as total
         FROM detalle_ventas dv
         JOIN productos p ON dv.id_producto = p.id_producto
-        JOIN categorias c ON p.id_categoria = c.id_categoria
         JOIN ventas v ON dv.id_venta = v.id_venta
         WHERE v.id_empresa = :empresa AND v.estado = 'completada'
-        GROUP BY c.nombre
+        {filtro_fecha_prod}
+        GROUP BY p.nombre
+        ORDER BY total DESC
+        LIMIT 5
     """)
-    res_cat = db.session.execute(query_cat, {"empresa": current_user.id_empresa}).fetchall()
+    res_prod = db.session.execute(query_prod, params_prod).fetchall()
     
-    ventas_cat = []
-    for row in res_cat:
-        ventas_cat.append({
-            "categoria": row[0],
+    top_productos = []
+    for row in res_prod:
+        top_productos.append({
+            "producto": row[0],
             "total": float(row[1] or 0)
         })
         
-    # Si no hay ventas, mostramos un 'Sin ventas'
-    if not ventas_cat:
-        ventas_cat.append({"categoria": "Sin ventas", "total": 0})
+    if not top_productos:
+        top_productos.append({"producto": "Sin ventas", "total": 0})
         
-    return {"ventas_7d": ventas_7d, "ventas_cat": ventas_cat}
+    return {"ventas_7d": ventas_7d, "top_productos": top_productos}

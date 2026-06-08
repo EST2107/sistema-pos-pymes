@@ -25,7 +25,7 @@ def lista():
 @producto_bp.route("/api/list", methods=["GET"])
 @login_required
 def api_list():
-    productos = Producto.query.filter_by(estado="activo").all()
+    productos = Producto.query.filter_by(estado="activo", id_empresa=current_user.id_empresa).all()
     resultado = []
     for p in productos:
         cat = Categoria.query.get(p.id_categoria) if p.id_categoria else None
@@ -54,7 +54,7 @@ def api_categorias():
 @producto_bp.route("/api/marcas", methods=["GET"])
 @login_required
 def api_marcas():
-    marcas = Marca.query.filter_by(estado="activo").all()
+    marcas = Marca.query.filter_by(estado="activo", id_empresa=current_user.id_empresa).all()
     return jsonify([m.to_dict() for m in marcas])
 
 @producto_bp.route("/api/marcas/crear", methods=["POST"])
@@ -131,6 +131,8 @@ def api_crear():
         )
         db.session.add(nuevo_inv)
         db.session.commit()
+        from app.services.auditoria_service import registrar_auditoria
+        registrar_auditoria("CREAR PRODUCTO", "Productos", f"Producto {nuevo_prod.nombre} creado (Código: {nuevo_prod.codigo})")
         return jsonify({"success": True})
     except Exception as e:
         db.session.rollback()
@@ -143,6 +145,8 @@ def api_editar(id):
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
     try:
         prod = Producto.query.get_or_404(id)
+        if prod.id_empresa != current_user.id_empresa:
+            return jsonify({"success": False, "message": "Acceso denegado"}), 403
 
         imagen_file = request.files.get('imagen')
         if imagen_file and imagen_file.filename:
@@ -167,6 +171,8 @@ def api_editar(id):
             inv.stock_minimo = float(request.form.get("stock_minimo", inv.stock_minimo or 0.0))
         
         db.session.commit()
+        from app.services.auditoria_service import registrar_auditoria
+        registrar_auditoria("EDITAR PRODUCTO", "Productos", f"Producto {prod.nombre} modificado")
         return jsonify({"success": True})
     except Exception as e:
         db.session.rollback()
@@ -177,8 +183,13 @@ def api_editar(id):
 def api_eliminar(id):
     try:
         prod = Producto.query.get_or_404(id)
+        if prod.id_empresa != current_user.id_empresa:
+            return jsonify({"success": False, "message": "Acceso denegado"}), 403
+            
         prod.estado = "inactivo"
         db.session.commit()
+        from app.services.auditoria_service import registrar_auditoria
+        registrar_auditoria("ELIMINAR PRODUCTO", "Productos", f"Producto {prod.nombre} marcado como inactivo")
         return jsonify({"success": True})
     except Exception as e:
         db.session.rollback()
@@ -193,6 +204,10 @@ def api_entrada(id):
         return jsonify({"success": False, "message": "Cantidad debe ser mayor a 0"}), 400
         
     try:
+        prod = Producto.query.get_or_404(id)
+        if prod.id_empresa != current_user.id_empresa:
+            return jsonify({"success": False, "message": "Acceso denegado"}), 403
+            
         inv = Inventario.query.filter_by(id_producto=id).first()
         if not inv:
             return jsonify({"success": False, "message": "Inventario no encontrado para este producto"}), 404

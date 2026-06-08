@@ -151,7 +151,7 @@ def exportar_ventas():
         gastos = db.session.execute(query_gastos, {"empresa": current_user.id_empresa, "inicio": fecha_inicio, "fin": fecha_fin}).fetchall()
         
         output = io.StringIO()
-        writer = csv.writer(output)
+        writer = csv.writer(output, delimiter=';')
         
         # VENTAS
         writer.writerow(["--- REPORTE DE VENTAS ---"])
@@ -213,7 +213,7 @@ def exportar_inventario():
         productos = db.session.execute(query, {"empresa": current_user.id_empresa}).fetchall()
         
         output = io.StringIO()
-        writer = csv.writer(output)
+        writer = csv.writer(output, delimiter=';')
         
         writer.writerow(["Codigo", "Producto", "Costo U. (C$)", "Precio U. (C$)", "Stock Actual", "Stock Minimo", "Valor Total Costo (C$)"])
         total_valor_inventario = 0

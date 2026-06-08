@@ -76,10 +76,15 @@ window.mostrarDetalles = function(detallesStr) {
     try {
         // Intentar parsear como JSON para formatear bonito
         const parsed = JSON.parse(detallesStr);
-        content.textContent = JSON.stringify(parsed, null, 2);
+        let html = '<ul style="list-style: none; padding: 0; margin: 0; font-size: 14px;">';
+        for (const [key, value] of Object.entries(parsed)) {
+            html += `<li style="margin-bottom: 8px;"><strong style="text-transform: capitalize;">${key.replace('_', ' ')}:</strong> ${value}</li>`;
+        }
+        html += '</ul>';
+        content.innerHTML = html;
     } catch(e) {
         // Si no es JSON, mostrar como texto normal
-        content.textContent = detallesStr;
+        content.innerHTML = detallesStr;
     }
     
     modal.style.display = 'flex';

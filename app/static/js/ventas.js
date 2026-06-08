@@ -72,6 +72,16 @@ async function cargarClientes() {
             opt.textContent = `${c.nombre} - ${c.cedula || ''}`;
             select.appendChild(opt);
         });
+        
+        if (window.Choices) {
+            new Choices(select, {
+                searchEnabled: true,
+                itemSelectText: '',
+                noResultsText: 'No se encontraron clientes',
+                noChoicesText: 'No hay opciones',
+                placeholderValue: 'Seleccione un cliente...'
+            });
+        }
     } catch (error) {
         console.error('Error cargando clientes:', error);
     }
@@ -201,12 +211,12 @@ function renderizarCarrito() {
 
 function cancelarVenta() {
     if (cart.length === 0) return;
-    if (confirm('¿Está seguro de cancelar la venta?')) {
+    showCustomConfirm('¿Está seguro de cancelar la venta?', () => {
         cart = [];
         descuentoAplicado = 0;
         propinaManual = null;
         renderizarCarrito();
-    }
+    });
 }
 
 // ---- LOGICA DEL MODAL DE CHECKOUT ----
