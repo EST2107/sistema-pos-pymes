@@ -251,6 +251,9 @@ document.getElementById('sendForgotBtn').addEventListener('click', async () => {
         const result = await response.json();
         
         if (result.success) {
+            if (result.message && result.message.includes("Modo Prueba")) {
+                alert(result.message);
+            }
             currentEmail = email;
             document.getElementById('step1').style.display = 'none';
             document.getElementById('step2').style.display = 'block';

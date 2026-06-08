@@ -78,7 +78,7 @@ def forgot_password():
         
     user = Usuario.query.filter_by(correo=correo).first()
     if not user:
-        return jsonify({"success": True, "message": "Si el correo existe, se ha enviado un código temporal."})
+        return jsonify({"success": False, "message": "Este correo electrónico no está registrado en el sistema."})
         
     # Generate 6 digit code
     codigo = ''.join(random.choices(string.digits, k=6))
@@ -117,17 +117,18 @@ def forgot_password():
             text_str = msg.as_string()
             server.sendmail(smtp_user, correo, text_str)
             server.quit()
+            return jsonify({"success": True, "message": "Se ha enviado un código de recuperación a tu correo electrónico."})
         except Exception as e:
             print(f"Error enviando correo: {e}")
             print(f"SIMULACIÓN EMAIL -> {correo} | Código: {codigo}")
+            return jsonify({"success": True, "message": f"(Modo Prueba) Error enviando correo. El código es: {codigo}"})
     else:
         # Simular envío si no hay configuración
         print("=" * 50)
         print(f"SIMULACION DE EMAIL ENVIADO A: {correo}")
         print(f"Tu codigo de recuperacion es: {codigo}")
         print("=" * 50)
-    
-    return jsonify({"success": True, "message": "Se ha enviado un código de recuperación a tu correo electrónico."})
+        return jsonify({"success": True, "message": f"(Modo Prueba - Sin SMTP) Tu código de recuperación es: {codigo}"})
 
 @auth_bp.route("/api/verify-code", methods=["POST"])
 def verify_code():
