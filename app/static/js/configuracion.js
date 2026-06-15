@@ -5,18 +5,65 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check saved theme
     if (localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark-theme');
+        document.documentElement.classList.add('dark-theme');
         themeToggle.checked = true;
     }
 
     themeToggle.addEventListener('change', (e) => {
         if (e.target.checked) {
             document.body.classList.add('dark-theme');
+            document.documentElement.classList.add('dark-theme');
             localStorage.setItem('theme', 'dark');
         } else {
             document.body.classList.remove('dark-theme');
+            document.documentElement.classList.remove('dark-theme');
             localStorage.setItem('theme', 'light');
         }
     });
+
+    // --- Color Picker Logic ---
+    const btnColorPicker = document.getElementById('btnColorPicker');
+    const colorPickerModal = document.getElementById('colorPickerModal');
+    const closeColorPicker = document.getElementById('closeColorPicker');
+    const colorSwatches = document.querySelectorAll('.color-swatch');
+    const customColorPicker = document.getElementById('customColorPicker');
+
+    // Open/Close Modal
+    if (btnColorPicker && colorPickerModal) {
+        btnColorPicker.addEventListener('click', () => {
+            colorPickerModal.style.display = 'flex';
+        });
+        closeColorPicker.addEventListener('click', () => {
+            colorPickerModal.style.display = 'none';
+        });
+        colorPickerModal.addEventListener('click', (e) => {
+            if (e.target === colorPickerModal) {
+                colorPickerModal.style.display = 'none';
+            }
+        });
+    }
+
+    // Apply color function
+    function applyColor(color) {
+        document.documentElement.style.setProperty('--primary-color', color);
+        localStorage.setItem('primary-color', color);
+    }
+
+    // Swatches click
+    colorSwatches.forEach(swatch => {
+        swatch.addEventListener('click', () => {
+            const color = swatch.getAttribute('data-color');
+            applyColor(color);
+        });
+    });
+
+    // Custom color picker change
+    if (customColorPicker) {
+        customColorPicker.addEventListener('input', (e) => {
+            applyColor(e.target.value);
+        });
+    }
+    // --------------------------
 
     // Password Form
     document.getElementById('formPassword').addEventListener('submit', async (e) => {

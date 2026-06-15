@@ -1,3 +1,12 @@
+
+:root {
+    --primary-color: var(--primary-color);
+    --bg-color: #f4f7fb;
+    --text-color: #07152f;
+    --sidebar-bg: linear-gradient(180deg, #061a35, #07111f);
+    --card-bg: #ffffff;
+    --border-color: #e2e8f0;
+}
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
 * {
@@ -48,7 +57,7 @@ html {
 .brand-icon {
     width: 42px;
     height: 42px;
-    background: #0b5cff;
+    background: var(--primary-color);
     border-radius: 10px;
     display: grid;
     place-items: center;
@@ -109,7 +118,7 @@ html {
 
 .menu a.active,
 .menu a:hover {
-    background: #0b5cff;
+    background: var(--primary-color);
     color: white;
 }
 
@@ -234,7 +243,7 @@ body.dark-theme .panel:has(table) thead th {
 
 .fake-chart div {
     flex: 1;
-    background: linear-gradient(180deg, #0b5cff, #9ec0ff);
+    background: linear-gradient(180deg, var(--primary-color), #9ec0ff);
     border-radius: 8px 8px 0 0;
 }
 
@@ -281,7 +290,7 @@ th {
     margin: 10px auto 20px;
     border-radius: 50%;
     background: conic-gradient(
-        #0b5cff 0 38%,
+        var(--primary-color) 0 38%,
         #16b978 38% 68%,
         #ffb703 68% 84%,
         #ef476f 84% 100%
@@ -335,7 +344,7 @@ th {
 }
 
 .btn-primary {
-    background: #0b5cff;
+    background: var(--primary-color);
     color: white;
 }
 .btn-primary:hover {
@@ -384,7 +393,7 @@ th {
     padding: 4px;
 }
 .btn-icon:hover {
-    color: #0b5cff;
+    color: var(--primary-color);
 }
 .btn-icon.delete:hover {
     color: #e63946;
@@ -400,7 +409,7 @@ th {
     width: 100%;
 }
 .form-control:focus {
-    border-color: #0b5cff;
+    border-color: var(--primary-color);
 }
 
 .search-bar {
@@ -448,7 +457,7 @@ th {
 }
 .badge-info {
     background: #e5f0ff;
-    color: #0b5cff;
+    color: var(--primary-color);
 }
 
 /* Tabs */
@@ -467,9 +476,9 @@ th {
     border-bottom: 2px solid transparent;
 }
 .tab-item.active {
-    color: #0b5cff;
+    color: var(--primary-color);
     font-weight: 600;
-    border-bottom-color: #0b5cff;
+    border-bottom-color: var(--primary-color);
 }
 
 /* Pagination */
@@ -500,9 +509,9 @@ th {
     text-decoration: none;
 }
 .page-btn.active {
-    background: #0b5cff;
+    background: var(--primary-color);
     color: white;
-    border-color: #0b5cff;
+    border-color: var(--primary-color);
 }
 
 /* POS Specific Layout */
@@ -539,7 +548,7 @@ th {
 .product-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 10px 20px rgba(20,40,80,.08);
-    border-color: #0b5cff;
+    border-color: var(--primary-color);
 }
 .product-img {
     font-size: 48px;
@@ -554,7 +563,7 @@ th {
 }
 .product-price {
     font-size: 14px;
-    color: #0b5cff;
+    color: var(--primary-color);
     font-weight: bold;
 }
 

@@ -14,13 +14,21 @@
                 <strong>Modo Oscuro</strong>
                 <p style="margin: 0; font-size: 13px; color: #666;">Cambiar entre tema claro y oscuro</p>
             </div>
-            <label class="switch">
-                <input type="checkbox" id="themeToggle">
-                <span class="slider round theme-slider">
-                    <span class="icon-sun">☀️</span>
-                    <span class="icon-moon">🌙</span>
-                </span>
-            </label>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <button type="button" id="btnColorPicker" style="background: #f1f5f9; border: 1px solid #e2e8f0; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 8px; border-radius: 8px; transition: all 0.2s;" title="Personalizar Colores">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <!-- Eyedropper icon from image -->
+                        <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+                    </svg>
+                </button>
+                <label class="switch">
+                    <input type="checkbox" id="themeToggle">
+                    <span class="slider round theme-slider">
+                        <span class="icon-sun">☀️</span>
+                        <span class="icon-moon">🌙</span>
+                    </span>
+                </label>
+            </div>
         </div>
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -70,6 +78,56 @@
         </form>
     </div>
     {% endif %}
+</div>
+
+<!-- Modal de Selección de Colores -->
+<div id="colorPickerModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(3px);">
+    <div class="modal-content" style="background: var(--card-bg, #fff); border-radius: 16px; padding: 24px; width: 340px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="margin: 0;">Colores del Sistema</h3>
+            <button id="closeColorPicker" style="background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-color, #333);">&times;</button>
+        </div>
+        
+        <div class="color-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 10px;">
+            <button class="color-swatch" data-color="#0b5cff" style="width: 50px; height: 50px; border-radius: 50%; border: 2px solid transparent; background: #0b5cff; cursor: pointer; position: relative; overflow: hidden; padding: 0;">
+                <div style="position: absolute; top: 0; left: 0; width: 50%; height: 50%; background: rgba(255,255,255,0.3);"></div>
+                <div style="position: absolute; bottom: 0; right: 0; width: 50%; height: 50%; background: rgba(0,0,0,0.2);"></div>
+            </button>
+            <button class="color-swatch" data-color="#16a34a" style="width: 50px; height: 50px; border-radius: 50%; border: 2px solid transparent; background: #16a34a; cursor: pointer; position: relative; overflow: hidden; padding: 0;">
+                <div style="position: absolute; top: 0; left: 0; width: 50%; height: 50%; background: rgba(255,255,255,0.3);"></div>
+                <div style="position: absolute; bottom: 0; right: 0; width: 50%; height: 50%; background: rgba(0,0,0,0.2);"></div>
+            </button>
+            <button class="color-swatch" data-color="#ea580c" style="width: 50px; height: 50px; border-radius: 50%; border: 2px solid transparent; background: #ea580c; cursor: pointer; position: relative; overflow: hidden; padding: 0;">
+                <div style="position: absolute; top: 0; left: 0; width: 50%; height: 50%; background: rgba(255,255,255,0.3);"></div>
+                <div style="position: absolute; bottom: 0; right: 0; width: 50%; height: 50%; background: rgba(0,0,0,0.2);"></div>
+            </button>
+            <button class="color-swatch" data-color="#9333ea" style="width: 50px; height: 50px; border-radius: 50%; border: 2px solid transparent; background: #9333ea; cursor: pointer; position: relative; overflow: hidden; padding: 0;">
+                <div style="position: absolute; top: 0; left: 0; width: 50%; height: 50%; background: rgba(255,255,255,0.3);"></div>
+                <div style="position: absolute; bottom: 0; right: 0; width: 50%; height: 50%; background: rgba(0,0,0,0.2);"></div>
+            </button>
+            <button class="color-swatch" data-color="#e11d48" style="width: 50px; height: 50px; border-radius: 50%; border: 2px solid transparent; background: #e11d48; cursor: pointer; position: relative; overflow: hidden; padding: 0;">
+                <div style="position: absolute; top: 0; left: 0; width: 50%; height: 50%; background: rgba(255,255,255,0.3);"></div>
+                <div style="position: absolute; bottom: 0; right: 0; width: 50%; height: 50%; background: rgba(0,0,0,0.2);"></div>
+            </button>
+            <button class="color-swatch" data-color="#0284c7" style="width: 50px; height: 50px; border-radius: 50%; border: 2px solid transparent; background: #0284c7; cursor: pointer; position: relative; overflow: hidden; padding: 0;">
+                <div style="position: absolute; top: 0; left: 0; width: 50%; height: 50%; background: rgba(255,255,255,0.3);"></div>
+                <div style="position: absolute; bottom: 0; right: 0; width: 50%; height: 50%; background: rgba(0,0,0,0.2);"></div>
+            </button>
+            <button class="color-swatch" data-color="#475569" style="width: 50px; height: 50px; border-radius: 50%; border: 2px solid transparent; background: #475569; cursor: pointer; position: relative; overflow: hidden; padding: 0;">
+                <div style="position: absolute; top: 0; left: 0; width: 50%; height: 50%; background: rgba(255,255,255,0.3);"></div>
+                <div style="position: absolute; bottom: 0; right: 0; width: 50%; height: 50%; background: rgba(0,0,0,0.2);"></div>
+            </button>
+            
+            <label style="width: 50px; height: 50px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px dashed #cbd5e1; position: relative;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                </svg>
+                <input type="color" id="customColorPicker" style="position: absolute; opacity: 0; width: 1px; height: 1px;">
+            </label>
+        </div>
+    </div>
 </div>
 
 <style>

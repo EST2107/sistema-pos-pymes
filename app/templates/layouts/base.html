@@ -8,19 +8,22 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}?v=8">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
     <script>
-        if (localStorage.getItem('theme') === 'dark') {
-            document.documentElement.classList.add('dark-theme');
-        }
+        // Init theme engine from localStorage to avoid flickering
+        (function() {
+            var theme = localStorage.getItem('theme');
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark-theme');
+            }
+            var primaryColor = localStorage.getItem('primary-color');
+            if (primaryColor) {
+                document.documentElement.style.setProperty('--primary-color', primaryColor);
+            }
+        })();
     </script>
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
 <body class="">
-    <script>
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark-theme');
-        }
-    </script>
 
 <div class="app-layout">
     
