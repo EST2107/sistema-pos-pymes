@@ -6,7 +6,7 @@ class Venta(db.Model):
     __tablename__ = 'ventas'
 
     id_venta = db.Column(db.Integer, primary_key=True)
-    id_empresa = db.Column(db.Integer, nullable=True)
+    id_empresa = db.Column(db.Integer, nullable=False)
     id_sucursal = db.Column(db.Integer, nullable=True)
     id_usuario = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=False)
     id_cliente = db.Column(db.Integer, db.ForeignKey('clientes.id_cliente'), nullable=True)

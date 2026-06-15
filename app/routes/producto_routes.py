@@ -48,7 +48,7 @@ def api_list():
 @producto_bp.route("/api/categorias", methods=["GET"])
 @login_required
 def api_categorias():
-    categorias = Categoria.query.filter_by(estado="activo").all()
+    categorias = Categoria.query.filter_by(estado="activo", id_empresa=current_user.id_empresa).all()
     return jsonify([c.to_dict() for c in categorias])
 
 @producto_bp.route("/api/marcas", methods=["GET"])

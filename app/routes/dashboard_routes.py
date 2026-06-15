@@ -33,27 +33,31 @@ def dashboard():
     
     # Ventas del día
     ventas_hoy = float(db.session.query(func.sum(Venta.total)).filter(
+        Venta.id_empresa == current_user.id_empresa,
         func.date(Venta.fecha_venta) == today,
         Venta.estado == 'completada'
     ).scalar() or 0.0)
 
     # Ventas del mes
     ventas_mes = float(db.session.query(func.sum(Venta.total)).filter(
+        Venta.id_empresa == current_user.id_empresa,
         func.date(Venta.fecha_venta) >= first_day_of_month,
         Venta.estado == 'completada'
     ).scalar() or 0.0)
 
     # Gastos del mes (compras)
     gastos_mes = float(db.session.query(func.sum(Compra.total)).filter(
+        Compra.id_empresa == current_user.id_empresa,
         func.date(Compra.fecha_compra) >= first_day_of_month,
         Compra.estado == 'completada'
     ).scalar() or 0.0)
 
     # Total de productos activos
-    total_productos = Producto.query.filter_by(estado='activo').count()
+    total_productos = Producto.query.filter_by(estado='activo', id_empresa=current_user.id_empresa).count()
     
     # Productos con bajo stock
     bajo_stock = db.session.query(Producto, Inventario).join(Inventario).filter(
+        Producto.id_empresa == current_user.id_empresa,
         Inventario.stock_actual <= Inventario.stock_minimo,
         Producto.estado == 'activo'
     ).limit(5).all()
@@ -62,7 +66,10 @@ def dashboard():
     mas_vendidos_query = db.session.query(
         Producto.nombre,
         func.sum(DetalleVenta.cantidad).label('total_vendido')
-    ).join(DetalleVenta).group_by(Producto.id_producto).order_by(db.desc('total_vendido')).limit(4).all()
+    ).join(DetalleVenta).join(Venta).filter(
+        Venta.id_empresa == current_user.id_empresa,
+        Venta.estado == 'completada'
+    ).group_by(Producto.id_producto).order_by(db.desc('total_vendido')).limit(4).all()
 
     return render_template(
         "dashboard/dashboard.html",
