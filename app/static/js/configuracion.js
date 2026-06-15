@@ -10,15 +10,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     themeToggle.addEventListener('change', (e) => {
+        let newTheme = 'light';
         if (e.target.checked) {
             document.body.classList.add('dark-theme');
             document.documentElement.classList.add('dark-theme');
-            localStorage.setItem('theme', 'dark');
+            newTheme = 'dark';
         } else {
             document.body.classList.remove('dark-theme');
             document.documentElement.classList.remove('dark-theme');
-            localStorage.setItem('theme', 'light');
         }
+        localStorage.setItem('theme', newTheme);
+        
+        fetch('/configuracion/api/guardar_preferencias', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ tema_preferido: newTheme })
+        }).catch(err => console.error('Error saving theme', err));
     });
 
     // --- Color Picker Logic ---
@@ -47,6 +54,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function applyColor(color) {
         document.documentElement.style.setProperty('--primary-color', color);
         localStorage.setItem('primary-color', color);
+        
+        fetch('/configuracion/api/guardar_preferencias', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ color_primario: color })
+        }).catch(err => console.error('Error saving color', err));
     }
 
     // Swatches click

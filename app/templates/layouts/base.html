@@ -8,16 +8,24 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}?v=8">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
     <script>
-        // Init theme engine from localStorage to avoid flickering
+        // Init theme engine from DB (if logged in) or localStorage
         (function() {
-            var theme = localStorage.getItem('theme');
+            var dbTheme = "{% if current_user.is_authenticated %}{{ current_user.tema_preferido }}{% endif %}";
+            var dbColor = "{% if current_user.is_authenticated %}{{ current_user.color_primario }}{% endif %}";
+            
+            var theme = dbTheme || localStorage.getItem('theme');
             if (theme === 'dark') {
                 document.documentElement.classList.add('dark-theme');
             }
-            var primaryColor = localStorage.getItem('primary-color');
+            
+            var primaryColor = dbColor || localStorage.getItem('primary-color');
             if (primaryColor) {
                 document.documentElement.style.setProperty('--primary-color', primaryColor);
             }
+            
+            // Sync localStorage with DB if DB has precedence
+            if (dbTheme) localStorage.setItem('theme', dbTheme);
+            if (dbColor) localStorage.setItem('primary-color', dbColor);
         })();
     </script>
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>

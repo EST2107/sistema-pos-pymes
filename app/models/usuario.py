@@ -22,6 +22,8 @@ class Usuario(UserMixin, db.Model):
     estado = db.Column(db.Enum("activo", "inactivo", "bloqueado"), default="activo")
     ultimo_acceso = db.Column(db.DateTime)
     fecha_creacion = db.Column(db.DateTime)
+    tema_preferido = db.Column(db.String(20), default="light")
+    color_primario = db.Column(db.String(20), default="#0b5cff")
 
     codigo_temporal = db.Column(db.String(10), nullable=True)
     expiracion_codigo = db.Column(db.DateTime, nullable=True)
